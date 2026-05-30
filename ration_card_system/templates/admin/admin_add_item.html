@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Item - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>Add New Item
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin_add_item') }}">
+                        <!-- Item Name -->
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Item Name *</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Category -->
+                            <div class="col-md-6 mb-3">
+                                <label for="category" class="form-label">Category *</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">Select Category</option>
+                                    <option value="grain">Grain</option>
+                                    <option value="sugar">Sugar</option>
+                                    <option value="fuel">Fuel</option>
+                                    <option value="pulse">Pulse</option>
+                                    <option value="oil">Oil</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Unit -->
+                            <div class="col-md-6 mb-3">
+                                <label for="unit" class="form-label">Unit *</label>
+                                <select class="form-select" id="unit" name="unit" required>
+                                    <option value="">Select Unit</option>
+                                    <option value="kg">Kilogram (kg)</option>
+                                    <option value="liter">Liter (L)</option>
+                                    <option value="piece">Piece</option>
+                                    <option value="packet">Packet</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Price -->
+                            <div class="col-md-4 mb-3">
+                                <label for="price" class="form-label">Price (₹) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" id="price" name="price" 
+                                           step="0.01" min="0" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Stock -->
+                            <div class="col-md-4 mb-3">
+                                <label for="stock" class="form-label">Stock *</label>
+                                <input type="number" class="form-control" id="stock" name="stock" 
+                                       step="0.01" min="0" required>
+                            </div>
+                            
+                            <!-- Monthly Quota -->
+                            <div class="col-md-4 mb-3">
+                                <label for="monthly_quota" class="form-label">Monthly Quota *</label>
+                                <input type="number" class="form-control" id="monthly_quota" name="monthly_quota" 
+                                       step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin_items') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Add Item
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

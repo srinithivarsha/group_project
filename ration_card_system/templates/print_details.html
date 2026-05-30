@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Ration Card Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Print-specific styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                font-size: 12pt;
+                background: white !important;
+                color: black !important;
+            }
+            .card {
+                border: 2px solid #000 !important;
+                box-shadow: none !important;
+            }
+            .table th, .table td {
+                border: 1px solid #000 !important;
+            }
+            .watermark {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(-45deg);
+                font-size: 80px;
+                color: rgba(0,0,0,0.1);
+                z-index: 9999;
+                pointer-events: none;
+            }
+        }
+        
+        @media screen {
+            .print-only {
+                display: none !important;
+            }
+            body {
+                background: #f8f9fa;
+                padding: 20px;
+            }
+        }
+        
+        .ration-card {
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border-radius: 8px 8px 0 0 !important;
+        }
+        .photo-placeholder {
+            width: 150px;
+            height: 180px;
+            background: #dee2e6;
+            border: 2px dashed #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+        }
+        .barcode {
+            font-family: 'Libre Barcode 128', cursive;
+            font-size: 40px;
+            letter-spacing: 2px;
+        }
+        .signature-box {
+            border-top: 1px solid #000;
+            width: 200px;
+            text-align: center;
+            padding-top: 5px;
+            margin-top: 20px;
+        }
+        .important-note {
+            border: 2px solid #dc3545;
+            background: #f8d7da;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+    <!-- Barcode font -->
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+128&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Watermark for print -->
+    <div class="watermark print-only">
+        RATION CARD
+    </div>
+    
+    <!-- Print Controls (only shown on screen) -->
+    <div class="container-fluid no-print mb-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">
+                                <i class="fas fa-print text-primary me-2"></i>
+                                Print Ration Card Details
+                            </h4>
+                            <div class="btn-group">
+                                <button onclick="window.print()" class="btn btn-success">
+                                    <i class="fas fa-print me-2"></i>Print Now
+                                </button>
+                                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                </a>
+                            </div>
+                        </div>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            This page is optimized for printing. Click "Print Now" or press Ctrl+P to print.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Printable Content -->
+    <div class="container">
+        <!-- Ration Card -->
+        <div class="ration-card mb-4">
+            <!-- Header -->
+            <div class="card-header p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h1 class="h2 mb-2">
+                            <i class="fas fa-credit-card me-2"></i>
+                            RATION CARD
+                        </h1>
+                        <p class="mb-0">Government of Tamil Nadu</p>
+                        <small>Public Distribution System</small>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="badge bg-light text-dark p-2">
+                            <strong>Card Type:</strong> 
+                            <span class="badge bg-{{ user.card_color }} ms-2">
+                                {{ user.card_type }} - {{ user.card_label }}
+                            </span>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-light">Print ID: {{ print_id }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Body -->
+            <div class="card-body p-4">
+                <div class="row">
+                    <!-- Left Column - User Details -->
+                    <div class="col-md-8">
+                        <!-- Personal Details -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h4 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-user me-2"></i>
+                                    Card Holder Details
+                                </h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <th width="40%">Name:</th>
+                                                <td><strong>{{ user.name }}</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Card Number:</th>
+                                                <td><strong>{{ user.card_number }}</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Card Type:</th>
+                                                <td>
+                                                    <span class="badge bg-{{ user.card_color }}">
+                                                        {{ user.card_type }} - {{ user.card_label }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Issue Date:</th>
+                                                <td>{{ user.issue_date }}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <th width="40%">Phone:</th>
+                                                <td>{{ user.phone }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Expiry Date:</th>
+                                                <td>{{ user.expiry_date }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Ration Shop:</th>
+                                                <td>{{ user.ration_shop }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Shop Address:</th>
+                                                <td>{{ user.shop_address }}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <strong>Address:</strong> {{ user.address }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Family Details -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h4 class="border-bottom pb-2 mb-3">
+                                    <i class="fas fa-users me-2"></i>
+                                    Family Members
+                                </h4>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Name</th>
+                                                <th>Relation</th>
+                                                <th>Age</th>
+                                                <th>Aadhaar Number</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Card Holder -->
+                                            <tr class="table-primary">
+                                                <td>1</td>
+                                                <td><strong>{{ card_holder.name }}</strong></td>
+                                                <td>{{ card_holder.relation }}</td>
+                                                <td>{{ card_holder.age }}</td>
+                                                <td>{{ card_holder.get('aadhaar', 'Not linked') }}</td>
+                                            </tr>
+                                            <!-- Other Members -->
+                                            {% for member in family %}
+                                            <tr>
+                                                <td>{{ loop.index + 1 }}</td>
+                                                <td>{{ member.name }}</td>
+                                                <td>{{ member.relation }}</td>
+                                                <td>{{ member.age }}</td>
+                                                <td>{{ member.aadhaar }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="table-light">
+                                                <td colspan="5" class="text-center">
+                                                    <strong>Total Family Members: {{ family|length + 1 }}</strong>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column - Photo & Barcode -->
+                    <div class="col-md-4">
+                        <!-- Photo Area -->
+                        <div class="text-center mb-4">
+                            <div class="photo-placeholder mx-auto">
+                                <div>
+                                    <i class="fas fa-user fa-4x mb-2"></i>
+                                    <p class="mb-0">Photo</p>
+                                    <small>3.5cm x 4.5cm</small>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Passport Size Photo</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Quota Information -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-chart-pie me-2"></i>
+                                    Monthly Quota Entitlement
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group list-group-flush">
+                                    <div class="list-group-item d-flex justify-content-between">
+                                        <span>Rice:</span>
+                                        <strong>{{ quota.rice }} kg</strong>
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between">
+                                        <span>Wheat:</span>
+                                        <strong>{{ quota.wheat }} kg</strong>
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between">
+                                        <span>Sugar:</span>
+                                        <strong>{{ quota.sugar }} kg</strong>
+                                    </div>
+                                    <div class="list-group-item d-flex justify-content-between">
+                                        <span>Kerosene:</span>
+                                        <strong>{{ quota.kerosene }} L</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Barcode -->
+                        <div class="text-center border p-3">
+                            <div class="barcode mb-2">
+                                *{{ user.card_number }}*
+                            </div>
+                            <small class="text-muted">Card Barcode</small>
+                            <div class="mt-3">
+                                <div id="qrcode"></div>
+                                <small class="text-muted">Scan QR for verification</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Important Information -->
+                <div class="important-note">
+                    <h5 class="text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        IMPORTANT INFORMATION
+                    </h5>
+                    <ul class="mb-0">
+                        <li>This ration card is the property of Government of Tamil Nadu</li>
+                        <li>Not transferable. Loss should be reported immediately</li>
+                        <li>Produce this card at the ration shop for purchases</li>
+                        <li>Card should be renewed before expiry date</li>
+                        <li>Any changes in family composition should be reported</li>
+                    </ul>
+                </div>
+                
+                <!-- Footer with Signatures -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="signature-box">
+                            <strong>Card Holder Signature</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="signature-box ms-auto">
+                            <strong>Ration Shop In-charge</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Print Footer -->
+                <div class="row mt-4 pt-3 border-top">
+                    <div class="col-md-6">
+                        <small class="text-muted">
+                            Printed on: {{ print_date }}
+                        </small>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <small class="text-muted">
+                            Page 1 of 1 | Official Copy
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Print Instructions -->
+    <div class="container no-print mt-4">
+        <div class="card">
+            <div class="card-body">
+                <h5>
+                    <i class="fas fa-info-circle text-info me-2"></i>
+                    Printing Instructions
+                </h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="alert alert-light">
+                            <h6><i class="fas fa-print me-2"></i>Step 1</h6>
+                            <p class="mb-0">Click "Print Now" button or press Ctrl+P</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="alert alert-light">
+                            <h6><i class="fas fa-cog me-2"></i>Step 2</h6>
+                            <p class="mb-0">Select "Save as PDF" to save digital copy</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="alert alert-light">
+                            <h6><i class="fas fa-check me-2"></i>Step 3</h6>
+                            <p class="mb-0">Print on A4 size paper for best results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript for QR Code -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Generate QR Code
+        const qrData = "{{ qr_data }}";
+        QRCode.toCanvas(document.getElementById('qrcode'), qrData, {
+            width: 100,
+            height: 100,
+            margin: 1,
+            color: {
+                dark: '#000000',
+                light: '#ffffff'
+            }
+        }, function(error) {
+            if (error) console.error(error);
+        });
+        
+        // Auto-print if URL has ?print=true
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('print') === 'true') {
+            setTimeout(() => {
+                window.print();
+            }, 1000);
+        }
+        
+        // Add print button functionality
+        document.querySelectorAll('.btn-print').forEach(btn => {
+            btn.addEventListener('click', function() {
+                window.print();
+            });
+        });
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center py-5">
+    <h1 class="display-4 fw-bold text-primary mb-4">
+        <i class="fas fa-utensils me-3"></i>Ration Card Management System
+    </h1>
+    <p class="lead mb-4">
+        A transparent and efficient digital platform for public distribution system
+    </p>
+    
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h3 class="card-title mb-4">Get Started</h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 border-primary">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                                    <h5>Card Holders</h5>
+                                    <p>Check stock, view quota, make purchases</p>
+                                    <a href="{{ url_for('login') }}" class="btn btn-primary">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 border-success">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-user-shield fa-3x text-success mb-3"></i>
+                                    <h5>Admin Access</h5>
+                                    <p>Manage stock, view reports, handle complaints</p>
+                                    <a href="{{ url_for('login') }}" class="btn btn-success">
+                                        <i class="fas fa-cog me-2"></i>Admin Login
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Features -->
+    <div class="row mt-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="fw-bold">System Features</h2>
+        </div>
+        
+        <div class="col-md-3 col-6 mb-3">
+            <div class="text-center p-3">
+                <i class="fas fa-bolt fa-2x text-primary mb-2"></i>
+                <h6>Fast Login</h6>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-6 mb-3">
+            <div class="text-center p-3">
+                <i class="fas fa-chart-line fa-2x text-success mb-2"></i>
+                <h6>Live Stock</h6>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-6 mb-3">
+            <div class="text-center p-3">
+                <i class="fas fa-history fa-2x text-warning mb-2"></i>
+                <h6>Purchase History</h6>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-6 mb-3">
+            <div class="text-center p-3">
+                <i class="fas fa-headset fa-2x text-danger mb-2"></i>
+                <h6>Complaint System</h6>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

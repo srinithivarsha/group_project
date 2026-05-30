@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+
+{% block title %}Family Details{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-users me-2"></i>Family Details
+                </h3>
+            </div>
+            <div class="card-body">
+                <!-- Family Summary -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-light border-0">
+                            <div class="card-body text-center">
+                                <h1 class="display-4 text-primary">{{ total_members }}</h1>
+                                <p class="text-muted mb-0">Family Members</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="card border-0 bg-info bg-opacity-10">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-info">
+                                            <i class="fas fa-id-card me-2"></i>Card Holder
+                                        </h6>
+                                        <h5 class="mb-1">{{ family_data.card_holder.name }}</h5>
+                                        <p class="text-muted mb-0">
+                                            {{ family_data.card_holder.relation }} • Age: {{ family_data.card_holder.age }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card border-0 bg-success bg-opacity-10">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-success">
+                                            <i class="fas fa-home me-2"></i>Family Head Information
+                                        </h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>Card Number:</strong> {{ session.card_number }}</p>
+                                                <p class="mb-1"><strong>Card Type:</strong> {{ session.card_type }}</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>Total Quota:</strong> Full Family Benefits</p>
+                                                <p class="mb-1"><strong>Status:</strong> Active</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Family Members Table -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-light border-0">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-list-alt me-2"></i>Family Members
+                                </h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="border-0">#</th>
+                                                <th class="border-0">Name</th>
+                                                <th class="border-0">Relation</th>
+                                                <th class="border-0">Age</th>
+                                                <th class="border-0">Aadhaar Number</th>
+                                                <th class="border-0">Status</th>
+                                                <th class="border-0">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Card Holder Row -->
+                                            <tr class="table-primary">
+                                                <td>1</td>
+                                                <td>
+                                                    <strong>{{ family_data.card_holder.name }}</strong>
+                                                    <span class="badge bg-primary ms-2">Card Holder</span>
+                                                </td>
+                                                <td>{{ family_data.card_holder.relation }}</td>
+                                                <td>{{ family_data.card_holder.age }}</td>
+                                                <td>
+                                                    <span class="text-muted">Not Available</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-success">Active</span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary" disabled>
+                                                        <i class="fas fa-user-edit"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            
+                                            <!-- Family Members Rows -->
+                                            {% for member in family_data.members %}
+                                            <tr>
+                                                <td>{{ loop.index + 1 }}</td>
+                                                <td>{{ member.name }}</td>
+                                                <td>{{ member.relation }}</td>
+                                                <td>{{ member.age }}</td>
+                                                <td>
+                                                    {% if member.aadhaar %}
+                                                        {{ member.aadhaar[:4] }} **** **** {{ member.aadhaar[-4:] }}
+                                                    {% else %}
+                                                        <span class="text-muted">Not Available</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if member.age < 18 %}
+                                                        <span class="badge bg-info">Minor</span>
+                                                    {% elif member.age > 60 %}
+                                                        <span class="badge bg-warning">Senior Citizen</span>
+                                                    {% else %}
+                                                        <span class="badge bg-success">Adult</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editMemberModal{{ loop.index }}">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger ms-1">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            
+                                            <!-- Edit Member Modal -->
+                                            <div class="modal fade" id="editMemberModal{{ loop.index }}" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Edit Family Member</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <form id="editMemberForm{{ loop.index }}">
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Name</label>
+                                                                    <input type="text" class="form-control" value="{{ member.name }}" required>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Relation</label>
+                                                                    <select class="form-select" required>
+                                                                        <option value="wife" {% if member.relation == 'Wife' %}selected{% endif %}>Wife</option>
+                                                                        <option value="husband" {% if member.relation == 'Husband' %}selected{% endif %}>Husband</option>
+                                                                        <option value="son" {% if member.relation == 'Son' %}selected{% endif %}>Son</option>
+                                                                        <option value="daughter" {% if member.relation == 'Daughter' %}selected{% endif %}>Daughter</option>
+                                                                        <option value="father" {% if member.relation == 'Father' %}selected{% endif %}>Father</option>
+                                                                        <option value="mother" {% if member.relation == 'Mother' %}selected{% endif %}>Mother</option>
+                                                                        <option value="other" {% if member.relation not in ['Wife','Husband','Son','Daughter','Father','Mother'] %}selected{% endif %}>Other</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Age</label>
+                                                                    <input type="number" class="form-control" value="{{ member.age }}" min="0" max="120" required>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">Aadhaar Number</label>
+                                                                    <input type="text" class="form-control" value="{{ member.aadhaar or '' }}" pattern="\d{12}" placeholder="12-digit Aadhaar">
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-primary" form="editMemberForm{{ loop.index }}">Save Changes</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quota Information -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary">
+                                    <i class="fas fa-chart-pie me-2"></i>Family Quota Information
+                                </h5>
+                                <p class="text-muted">
+                                    Your family is eligible for monthly rations based on the number of members. 
+                                    The card holder can collect the full family quota.
+                                </p>
+                                <div class="row">
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="card border-0 bg-white">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-utensils fa-2x text-primary mb-2"></i>
+                                                <h5 class="card-title">Food Grains</h5>
+                                                <p class="card-text">
+                                                    {{ (total_members * 5)|round(1) }} kg/month<br>
+                                                    <small class="text-muted">Based on family size</small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="card border-0 bg-white">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-gas-pump fa-2x text-warning mb-2"></i>
+                                                <h5 class="card-title">Kerosene</h5>
+                                                <p class="card-text">
+                                                    {{ (total_members * 0.5)|round(1) }} L/month<br>
+                                                    <small class="text-muted">For cooking</small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="card border-0 bg-white">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-sugar-cube fa-2x text-success mb-2"></i>
+                                                <h5 class="card-title">Sugar</h5>
+                                                <p class="card-text">
+                                                    {{ (total_members * 0.5)|round(1) }} kg/month<br>
+                                                    <small class="text-muted">Essential commodity</small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="card border-0 bg-white">
+                                            <div class="card-body text-center">
+                                                <i class="fas fa-award fa-2x text-danger mb-2"></i>
+                                                <h5 class="card-title">Card Benefits</h5>
+                                                <p class="card-text">
+                                                    {{ session.card_type }} Card<br>
+                                                    <small class="text-muted">Full family coverage</small>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addMemberModal">
+                                <i class="fas fa-user-plus me-2"></i>Add Family Member
+                            </button>
+                            <button class="btn btn-success">
+                                <i class="fas fa-print me-2"></i>Print Family Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Member Modal -->
+<div class="modal fade" id="addMemberModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Family Member</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addMemberForm">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name *</label>
+                        <input type="text" class="form-control" placeholder="Enter full name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Relation to Card Holder *</label>
+                        <select class="form-select" required>
+                            <option value="">Select relation</option>
+                            <option value="wife">Wife</option>
+                            <option value="husband">Husband</option>
+                            <option value="son">Son</option>
+                            <option value="daughter">Daughter</option>
+                            <option value="father">Father</option>
+                            <option value="mother">Mother</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Age *</label>
+                        <input type="number" class="form-control" placeholder="Enter age" min="0" max="120" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Aadhaar Number</label>
+                        <input type="text" class="form-control" placeholder="12-digit Aadhaar (optional)" pattern="\d{12}">
+                        <div class="form-text">12-digit number without spaces</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date of Birth (Optional)</label>
+                        <input type="date" class="form-control">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" form="addMemberForm">Add Member</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle add member form submission
+    document.getElementById('addMemberForm')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        // In a real app, you would send this to the server
+        alert('Family member added successfully! Note: This is a demo. In production, this would update the database.');
+        $('#addMemberModal').modal('hide');
+        this.reset();
+    });
+
+    // Handle edit member form submissions
+    document.querySelectorAll('[id^="editMemberForm"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Member details updated successfully! Note: This is a demo.');
+            $(this).closest('.modal').modal('hide');
+        });
+    });
+
+    // Delete member button handlers
+    document.querySelectorAll('.btn-outline-danger').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to remove this family member?')) {
+                // In a real app, you would send delete request to server
+                const row = this.closest('tr');
+                row.style.transition = 'all 0.3s ease';
+                row.style.opacity = '0.5';
+                row.style.backgroundColor = '#ffeaea';
+                
+                setTimeout(() => {
+                    row.remove();
+                    alert('Family member removed. Note: This is a demo.');
+                }, 300);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

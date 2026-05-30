@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Item - Admin{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>Edit Item: {{ item.name }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin_edit_item', item_id=item.id) }}">
+                        <!-- Item Name -->
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Item Name *</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="{{ item.name }}" required>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3">{{ item.description }}</textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Category -->
+                            <div class="col-md-6 mb-3">
+                                <label for="category" class="form-label">Category *</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="grain" {% if item.category == 'grain' %}selected{% endif %}>Grain</option>
+                                    <option value="sugar" {% if item.category == 'sugar' %}selected{% endif %}>Sugar</option>
+                                    <option value="fuel" {% if item.category == 'fuel' %}selected{% endif %}>Fuel</option>
+                                    <option value="pulse" {% if item.category == 'pulse' %}selected{% endif %}>Pulse</option>
+                                    <option value="oil" {% if item.category == 'oil' %}selected{% endif %}>Oil</option>
+                                    <option value="other" {% if item.category == 'other' %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Unit -->
+                            <div class="col-md-6 mb-3">
+                                <label for="unit" class="form-label">Unit *</label>
+                                <select class="form-select" id="unit" name="unit" required>
+                                    <option value="kg" {% if item.unit == 'kg' %}selected{% endif %}>Kilogram (kg)</option>
+                                    <option value="liter" {% if item.unit == 'liter' %}selected{% endif %}>Liter (L)</option>
+                                    <option value="piece" {% if item.unit == 'piece' %}selected{% endif %}>Piece</option>
+                                    <option value="packet" {% if item.unit == 'packet' %}selected{% endif %}>Packet</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Price -->
+                            <div class="col-md-4 mb-3">
+                                <label for="price" class="form-label">Price (₹) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" id="price" name="price" 
+                                           value="{{ item.price }}" step="0.01" min="0" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Stock -->
+                            <div class="col-md-4 mb-3">
+                                <label for="stock" class="form-label">Stock *</label>
+                                <input type="number" class="form-control" id="stock" name="stock" 
+                                       value="{{ item.stock }}" step="0.01" min="0" required>
+                            </div>
+                            
+                            <!-- Monthly Quota -->
+                            <div class="col-md-4 mb-3">
+                                <label for="monthly_quota" class="form-label">Monthly Quota *</label>
+                                <input type="number" class="form-control" id="monthly_quota" name="monthly_quota" 
+                                       value="{{ item.monthly_quota }}" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin_items') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update Item
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

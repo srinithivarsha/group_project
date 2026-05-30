@@ -1,0 +1,464 @@
+{% extends "base.html" %}
+
+{% block title %}File Complaint{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>File Complaint
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary mb-4">
+                                    <i class="fas fa-edit me-2"></i>Complaint Details
+                                </h5>
+                                
+                                <form method="POST" action="{{ url_for('complaint') }}">
+                                    <!-- Complaint Type -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Complaint Type *</label>
+                                        <select class="form-select" name="complaint_type" required>
+                                            <option value="">Select complaint type</option>
+                                            <option value="quality">Quality Issue</option>
+                                            <option value="quantity">Short Quantity</option>
+                                            <option value="behavior">Shopkeeper Behavior</option>
+                                            <option value="stock">Stock Unavailability</option>
+                                            <option value="price">Wrong Price Charged</option>
+                                            <option value="timing">Shop Timing Issue</option>
+                                            <option value="other">Other Issue</option>
+                                        </select>
+                                        <div class="form-text">Select the type of complaint you want to file</div>
+                                    </div>
+
+                                    <!-- Shop Selection -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Select Ration Shop *</label>
+                                        <select class="form-select" name="shop_id" required>
+                                            <option value="">Select ration shop</option>
+                                            {% for shop in ration_shops %}
+                                            <option value="{{ shop.id }}">{{ shop.shop_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-text">Select the shop where the issue occurred</div>
+                                    </div>
+
+                                    <!-- Priority Selection -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Priority Level *</label>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="priority" 
+                                                           id="lowPriority" value="Low" checked>
+                                                    <label class="form-check-label text-success" for="lowPriority">
+                                                        <i class="fas fa-flag me-1"></i>Low Priority
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="priority" 
+                                                           id="mediumPriority" value="Medium">
+                                                    <label class="form-check-label text-warning" for="mediumPriority">
+                                                        <i class="fas fa-flag me-1"></i>Medium Priority
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="priority" 
+                                                           id="highPriority" value="High">
+                                                    <label class="form-check-label text-danger" for="highPriority">
+                                                        <i class="fas fa-flag me-1"></i>High Priority
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Complaint Description *</label>
+                                        <textarea class="form-control" name="description" rows="5" 
+                                                  placeholder="Please describe your complaint in detail. Include date, time, items involved, and any other relevant information." 
+                                                  required></textarea>
+                                        <div class="form-text">Be specific and provide all necessary details for quick resolution</div>
+                                    </div>
+
+                                    <!-- Attachments (Optional) -->
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">Attachments (Optional)</label>
+                                        <div class="input-group">
+                                            <input type="file" class="form-control" id="attachment" 
+                                                   accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
+                                            <label class="input-group-text" for="attachment">
+                                                <i class="fas fa-paperclip"></i>
+                                            </label>
+                                        </div>
+                                        <div class="form-text">Upload photos, receipts, or documents (Max: 5MB each)</div>
+                                    </div>
+
+                                    <!-- Contact Information -->
+                                    <div class="mb-4">
+                                        <h6 class="text-primary mb-3">
+                                            <i class="fas fa-phone-alt me-2"></i>Contact Information
+                                        </h6>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Phone Number</label>
+                                                <input type="tel" class="form-control" 
+                                                       value="+91 9876543210" readonly>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Email Address</label>
+                                                <input type="email" class="form-control" 
+                                                       value="{{ session.name|lower }}@example.com" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Terms & Conditions -->
+                                    <div class="mb-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                                            <label class="form-check-label" for="termsCheck">
+                                                I confirm that the information provided is accurate to the best of my knowledge.
+                                                I understand that false complaints may lead to action against my ration card.
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Submit Button -->
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                        <button type="reset" class="btn btn-outline-secondary me-2">
+                                            <i class="fas fa-redo me-1"></i>Reset Form
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-paper-plane me-1"></i>Submit Complaint
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Guidelines & Help Section -->
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>Complaint Guidelines
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-lightbulb me-2"></i>Tips for Effective Complaints:
+                                    </h6>
+                                    <ul class="mb-0 ps-3">
+                                        <li>Be specific about date, time, and shop</li>
+                                        <li>Mention exact items and quantities</li>
+                                        <li>Provide shop receipt number if available</li>
+                                        <li>Attach photos as evidence</li>
+                                        <li>Keep your complaint factual and polite</li>
+                                    </ul>
+                                </div>
+
+                                <div class="alert alert-warning">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-exclamation-circle me-2"></i>What to Expect:
+                                    </h6>
+                                    <ul class="mb-0 ps-3">
+                                        <li>Complaint ID will be generated</li>
+                                        <li>Resolution within 3-7 working days</li>
+                                        <li>Status updates via SMS/Email</li>
+                                        <li>Officer may contact you for details</li>
+                                    </ul>
+                                </div>
+
+                                <div class="alert alert-success">
+                                    <h6 class="alert-heading">
+                                        <i class="fas fa-shield-alt me-2"></i>Your Rights:
+                                    </h6>
+                                    <ul class="mb-0 ps-3">
+                                        <li>Right to file anonymous complaints</li>
+                                        <li>Right to know complaint status</li>
+                                        <li>Right to appeal if unsatisfied</li>
+                                        <li>Protection against retaliation</li>
+                                    </ul>
+                                </div>
+
+                                <div class="text-center">
+                                    <button class="btn btn-outline-primary w-100 mb-2" 
+                                            data-bs-toggle="modal" data-bs-target="#faqModal">
+                                        <i class="fas fa-question-circle me-2"></i>FAQ
+                                    </button>
+                                    <a href="{{ url_for('complaint_status') }}" class="btn btn-outline-success w-100">
+                                        <i class="fas fa-history me-2"></i>Check Complaint Status
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Complaint Statistics -->
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-chart-bar me-2"></i>Complaint Statistics
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-6 mb-3">
+                                        <div class="display-6 text-primary">3</div>
+                                        <small class="text-muted">Total Complaints</small>
+                                    </div>
+                                    <div class="col-6 mb-3">
+                                        <div class="display-6 text-success">2</div>
+                                        <small class="text-muted">Resolved</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="display-6 text-warning">1</div>
+                                        <small class="text-muted">Pending</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="display-6 text-info">85%</div>
+                                        <small class="text-muted">Satisfaction Rate</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FAQ Modal -->
+<div class="modal fade" id="faqModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-question-circle me-2"></i>Frequently Asked Questions
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq1" aria-expanded="true">
+                                What types of complaints can I file?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                You can file complaints about: quality issues, short quantity, 
+                                shopkeeper behavior, stock unavailability, wrong prices, 
+                                shop timing issues, and other related problems.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq2">
+                                How long does it take to resolve a complaint?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Most complaints are resolved within 3-7 working days. 
+                                Complex cases may take up to 15 days. You'll receive 
+                                regular updates on your complaint status.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq3">
+                                Can I file anonymous complaints?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes, you can file anonymous complaints. However, providing 
+                                your details helps us investigate better and update you 
+                                on the resolution.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#faq4">
+                                What if I'm not satisfied with the resolution?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                You can appeal the decision within 15 days of resolution. 
+                                The appeal will be reviewed by a senior officer.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="tel:1967" class="btn btn-primary">
+                    <i class="fas fa-phone-alt me-2"></i>Call Helpline: 1967
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const complaintType = form.querySelector('[name="complaint_type"]');
+        const shopId = form.querySelector('[name="shop_id"]');
+        const description = form.querySelector('[name="description"]');
+        const termsCheck = document.getElementById('termsCheck');
+        
+        // Validate fields
+        if (!complaintType.value) {
+            e.preventDefault();
+            showAlert('Please select complaint type', 'warning');
+            complaintType.focus();
+            return;
+        }
+        
+        if (!shopId.value) {
+            e.preventDefault();
+            showAlert('Please select ration shop', 'warning');
+            shopId.focus();
+            return;
+        }
+        
+        if (!description.value.trim()) {
+            e.preventDefault();
+            showAlert('Please enter complaint description', 'warning');
+            description.focus();
+            return;
+        }
+        
+        if (!termsCheck.checked) {
+            e.preventDefault();
+            showAlert('Please accept the terms and conditions', 'warning');
+            termsCheck.focus();
+            return;
+        }
+        
+        // Show loading state
+        const submitBtn = form.querySelector('[type="submit"]');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Submitting...';
+        submitBtn.disabled = true;
+    });
+    
+    // File attachment preview
+    const attachmentInput = document.getElementById('attachment');
+    attachmentInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            // Check file size (5MB limit)
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('File size exceeds 5MB limit', 'danger');
+                this.value = '';
+                return;
+            }
+            
+            // Check file type
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 
+                                 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!allowedTypes.includes(file.type)) {
+                showAlert('Invalid file type. Allowed: JPG, PNG, PDF, DOC', 'danger');
+                this.value = '';
+                return;
+            }
+            
+            showAlert('File selected: ' + file.name, 'success');
+        }
+    });
+    
+    // Helper function to show alerts
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+        alertDiv.style.zIndex = '1050';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alertDiv);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+    
+    // Auto-save form data
+    let autoSaveTimer;
+    const formInputs = form.querySelectorAll('input, select, textarea');
+    
+    formInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                const formData = new FormData(form);
+                const data = {};
+                formData.forEach((value, key) => {
+                    if (key !== 'attachment') {
+                        data[key] = value;
+                    }
+                });
+                localStorage.setItem('complaintDraft', JSON.stringify(data));
+                console.log('Form draft saved');
+            }, 1000);
+        });
+    });
+    
+    // Load draft on page load
+    const savedDraft = localStorage.getItem('complaintDraft');
+    if (savedDraft) {
+        const data = JSON.parse(savedDraft);
+        Object.keys(data).forEach(key => {
+            const input = form.querySelector(`[name="${key}"]`);
+            if (input) {
+                if (input.type === 'radio') {
+                    const radio = form.querySelector(`[name="${key}"][value="${data[key]}"]`);
+                    if (radio) radio.checked = true;
+                } else {
+                    input.value = data[key];
+                }
+            }
+        });
+        console.log('Form draft loaded');
+    }
+    
+    // Clear draft on successful submission
+    form.addEventListener('submit', function() {
+        localStorage.removeItem('complaintDraft');
+    });
+});
+</script>
+{% endblock %}

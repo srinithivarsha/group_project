@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Notifications{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <i class="fas fa-bullhorn me-2"></i>Notification Management
+                </h2>
+                <p class="text-muted">Send announcements and manage system notifications</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Send Notification Form -->
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-paper-plane me-2"></i>Send New Notification</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin_notifications') }}">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Notification Title</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               placeholder="Enter notification title" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea class="form-control" id="message" name="message" 
+                                  rows="3" placeholder="Enter notification message" required></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="type" class="form-label">Notification Type</label>
+                            <select class="form-select" id="type" name="type">
+                                <option value="announcement">System Announcement</option>
+                                <option value="alert">Alert</option>
+                                <option value="update">System Update</option>
+                                <option value="scheme">New Scheme</option>
+                                <option value="festival">Festival Offer</option>
+                                <option value="reminder">Reminder</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Options</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="important" name="important">
+                                <label class="form-check-label" for="important">
+                                    Mark as important
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Send to All Users
+                        </button>
+                    </div>
+                </form>
+                
+                <hr class="my-4">
+                
+                <!-- Send to Specific User -->
+                <h6><i class="fas fa-user me-2"></i>Send to Specific User</h6>
+                <div class="input-group mb-3">
+                    <select class="form-select" id="specificUser">
+                        <option value="">Select user...</option>
+                        <option value="RC2024001">Saravanan (RC2024001)</option>
+                        <option value="RC2024002">Cibi (RC2024002)</option>
+                        <option value="RC2024003">Easwaramurthy (RC2024003)</option>
+                        <option value="RC2024004">Murugan (RC2024004)</option>
+                    </select>
+                    <button class="btn btn-outline-primary" id="sendSpecificBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Announcements -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-bullhorn me-2"></i>System Announcements</h5>
+            </div>
+            <div class="card-body">
+                {% if system_announcements %}
+                <div class="list-group">
+                    {% for announcement in system_announcements %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">
+                                    {{ announcement.title }}
+                                    {% if announcement.important %}
+                                        <i class="fas fa-star text-warning ms-1"></i>
+                                    {% endif %}
+                                </h6>
+                                <p class="mb-1 small">{{ announcement.message }}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>{{ announcement.date }}
+                                    <i class="fas fa-tag ms-3 me-1"></i>{{ announcement.type|title }}
+                                </small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger delete-announcement-btn" 
+                                    data-id="{{ announcement.id }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No system announcements yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Notification Stats -->
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Notification Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="display-6 fw-bold">4</div>
+                        <small class="text-muted">Active Users</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="display-6 fw-bold">{{ system_announcements|length }}</div>
+                        <small class="text-muted">Announcements</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="display-6 fw

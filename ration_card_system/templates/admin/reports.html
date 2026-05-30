@@ -1,0 +1,36 @@
+{% extends "admin/admin_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">📊 Reports</h2>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5>Total Users</h5>
+                    <p class="fs-4">150</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5>Total Purchases</h5>
+                    <p class="fs-4">1,250</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5>Pending Complaints</h5>
+                    <p class="fs-4">12</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

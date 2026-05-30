@@ -1,0 +1,32 @@
+{% extends "admin/admin_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">⚠️ Complaints</h2>
+
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Complaint ID</th>
+                <th>User Name</th>
+                <th>Issue</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1023</td>
+                <td>Saravanan</td>
+                <td>Low quality rice</td>
+                <td><span class="badge bg-warning">Pending</span></td>
+            </tr>
+            <tr>
+                <td>1045</td>
+                <td>Cibi</td>
+                <td>Late distribution</td>
+                <td><span class="badge bg-success">Resolved</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

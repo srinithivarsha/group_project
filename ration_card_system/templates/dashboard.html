@@ -1,0 +1,822 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Modern gradient backgrounds */
+    .bg-gradient-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .bg-gradient-success { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+    .bg-gradient-info { background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%); }
+    .bg-gradient-warning { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+    .bg-gradient-danger { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    
+    /* Animated counter cards */
+    .stat-card {
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+    
+    /* Notification pulse animation */
+    .pulse-ring {
+        position: relative;
+    }
+    .pulse-ring::before {
+        content: '';
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        width: 20px;
+        height: 20px;
+        background: #dc3545;
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(2); opacity: 0; }
+    }
+    
+    /* Stock status badges */
+    .stock-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.85rem;
+    }
+    
+    /* Modern card designs */
+    .glass-card {
+        background: rgba(255,255,255,0.9);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    /* Progress bar enhancements */
+    .progress-modern {
+        height: 10px;
+        border-radius: 10px;
+        background: #f0f0f0;
+        overflow: hidden;
+    }
+    .progress-modern .progress-bar {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent);
+        background-size: 1rem 1rem;
+        animation: progress-bar-stripes 1s linear infinite;
+    }
+    
+    /* Quick action buttons */
+    .quick-action-btn {
+        border-radius: 12px;
+        padding: 15px;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+    .quick-action-btn:hover {
+        transform: translateY(-3px);
+        border-color: rgba(255,255,255,0.5);
+    }
+    
+    /* Family member avatars */
+    .family-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        transition: all 0.3s;
+    }
+    .family-avatar:hover {
+        border-radius: 50%;
+        transform: rotate(360deg);
+    }
+    
+    /* Offer cards */
+    .offer-card {
+        border: none;
+        border-radius: 15px;
+        position: relative;
+        overflow: hidden;
+    }
+    .offer-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #ff6b6b, #ffd93d);
+    }
+    
+    /* Enhanced font colors for stat cards */
+    .glass-card h6 {
+        color: rgba(17, 16, 16, 0.95) !important;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .glass-card h5 {
+        color: rgb(17, 17, 17) !important;
+        font-weight: 700;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        letter-spacing: 0.3px;
+    }
+    
+    .glass-card .rounded-circle i {
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+    }
+    
+    /* Individual card icon colors */
+    .glass-card .fa-id-card { color: #4361ee !important; }
+    .glass-card .fa-tag { color: #2dc653 !important; }
+    .glass-card .fa-users { color: #ff9e00 !important; }
+    .glass-card .fa-check-circle { color: #00b4d8 !important; }
+</style>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card stat-card bg-gradient-primary text-white">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="card-title mb-2">
+                            <i class="fas fa-user-circle me-2"></i>Welcome back, {{ user.name }}!
+                        </h2>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-white text-primary px-4 py-2 rounded-pill">
+                            <i class="fas fa-shield-alt me-1"></i>{{ user.card_type }} Card
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="row mt-4 g-3">
+                    <div class="col-md-3">
+                        <div class="glass-card rounded-4 p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-white p-3 me-3">
+                                    <i class="fas fa-id-card fa-2x" style="color: #4361ee;"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-white mb-1" style="color: rgba(8, 8, 8, 0.95) !important; font-weight: 600;">Card Number</h6>
+                                    <h5 class="mb-0 fw-bold text-white" style="text-shadow: 0 2px 8px rgba(0,0,0,0.2);">{{ user.card_number }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="glass-card rounded-4 p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-white p-3 me-3">
+                                    <i class="fas fa-tag fa-2x" style="color: #2dc653;"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-white mb-1" style="color: rgba(11, 11, 11, 0.95) !important; font-weight: 600;">Card Type</h6>
+                                    <h5 class="mb-0 fw-bold text-white" style="text-shadow: 0 2px 8px rgba(0,0,0,0.2);">{{ user.card_type }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="glass-card rounded-4 p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-white p-3 me-3">
+                                    <i class="fas fa-users fa-2x" style="color: #ff9e00;"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-white mb-1" style="color: rgba(6, 6, 6, 0.95) !important; font-weight: 600;">Family Members</h6>
+                                    <h5 class="mb-0 fw-bold text-white" style="text-shadow: 0 2px 8px rgba(0,0,0,0.2);">{{ family|length + 1 }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="glass-card rounded-4 p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-white p-3 me-3">
+                                    <i class="fas fa-check-circle fa-2x" style="color: #00b4d8;"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-white mb-1" style="color: rgba(9, 9, 9, 0.95) !important; font-weight: 600;">Status</h6>
+                                    <h5 class="mb-0 fw-bold text-white" style="text-shadow: 0 2px 8px rgba(0,0,0,0.2);">Active</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <!-- Enhanced Notification Section -->
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <span class="pulse-ring position-relative">
+                            <i class="fas fa-bell text-warning me-2"></i>
+                        </span>
+                        Important Notifications
+                        {% if unread_count > 0 %}
+                            <span class="badge bg-danger rounded-pill ms-2">{{ unread_count }} New</span>
+                        {% endif %}
+                    </h5>
+                    <a href="{{ url_for('notifications') }}" class="btn btn-light rounded-pill px-4">
+                        View All <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if recent_notifications %}
+                    {% set latest_notification = recent_notifications[0] %}
+                    <div class="notification-card p-4 rounded-4" style="background: linear-gradient(145deg, #fff8e7, #fff); border-left: 6px solid #ffc107;">
+                        <div class="d-flex">
+                            <div class="notification-icon me-4">
+                                <div class="rounded-circle p-3 shadow-sm" style="background: linear-gradient(135deg, #fff5e6, #ffe6d5);">
+                                    {% if latest_notification.type == 'offer' %}
+                                        <i class="fas fa-gift fa-2x" style="color: #ff6b6b;"></i>
+                                    {% elif latest_notification.type == 'reminder' %}
+                                        <i class="fas fa-clock fa-2x" style="color: #4a90e2;"></i>
+                                    {% elif latest_notification.type == 'alert' %}
+                                        <i class="fas fa-exclamation-triangle fa-2x" style="color: #ff4757;"></i>
+                                    {% elif latest_notification.type == 'scheme' %}
+                                        <i class="fas fa-file-alt fa-2x" style="color: #26de81;"></i>
+                                    {% else %}
+                                        <i class="fas fa-bell fa-2x" style="color: #6c5ce7;"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="fw-bold mb-1">
+                                            {{ latest_notification.title }}
+                                            {% if latest_notification.important %}
+                                                <i class="fas fa-star text-warning ms-2" data-bs-toggle="tooltip" title="High Priority"></i>
+                                            {% endif %}
+                                        </h5>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="badge bg-{{ user.card_color }} rounded-pill px-3 py-2">
+                                                {{ latest_notification.type|title }}
+                                            </span>
+                                            <span class="text-muted ms-3">
+                                                <i class="far fa-clock me-1"></i>{{ latest_notification.date }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {% if not latest_notification.read %}
+                                        <span class="badge bg-danger rounded-pill px-3 py-2">NEW</span>
+                                    {% endif %}
+                                </div>
+                                <p class="mb-3 fs-6">{{ latest_notification.message }}</p>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-warning rounded-pill px-4 mark-read-btn" 
+                                            data-id="{{ latest_notification.id }}">
+                                        <i class="fas fa-check-circle me-2"></i>Mark as Read
+                                    </button>
+                                    <a href="{{ url_for('notifications') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                                        <i class="fas fa-info-circle me-2"></i>Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <div class="mb-3">
+                            <i class="fas fa-bell-slash fa-4x text-muted opacity-50"></i>
+                        </div>
+                        <h5 class="text-muted">All Caught Up!</h5>
+                        <p class="text-muted mb-0">No new notifications at the moment</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Enhanced Stock Availability Table -->
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-boxes text-info me-2"></i>Today's Stock Availability
+                    </h5>
+                    <span class="badge bg-light text-dark rounded-pill px-3 py-2">
+                        <i class="fas fa-sync-alt me-1"></i>Live Updates
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="border-0 rounded-start">Item</th>
+                                <th class="border-0">Price</th>
+                                <th class="border-0">Available</th>
+                                <th class="border-0">Status</th>
+                                <th class="border-0 rounded-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in availability %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="stock-icon me-3">
+                                            {% if item.item_name == 'Rice' %}
+                                                <i class="fas fa-seedling fa-2x text-success"></i>
+                                            {% elif item.item_name == 'Wheat' %}
+                                                <i class="fas fa-wheat-alt fa-2x text-warning"></i>
+                                            {% elif item.item_name == 'Sugar' %}
+                                                <i class="fas fa-cube fa-2x text-danger"></i>
+                                            {% else %}
+                                                <i class="fas fa-gas-pump fa-2x text-primary"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-0">{{ item.item_name }}</h6>
+                                            <small class="text-muted">Per kg</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="fw-bold fs-5">₹{{ item.price }}</span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold">{{ item.available_quantity }}</span>
+                                    <small class="text-muted">{{ item.unit }}</small>
+                                </td>
+                                <td>
+                                    {% if item.available_quantity > 100 %}
+                                        <span class="badge bg-success stock-badge">
+                                            <i class="fas fa-check-circle me-1"></i>In Stock
+                                        </span>
+                                    {% elif item.available_quantity > 0 %}
+                                        <span class="badge bg-warning stock-badge">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>Low Stock
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger stock-badge">
+                                            <i class="fas fa-times-circle me-1"></i>Out of Stock
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('purchase') }}" class="btn btn-primary rounded-pill px-4">
+                                        <i class="fas fa-shopping-cart me-2"></i>Buy Now
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Enhanced Monthly Quota -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-pie text-primary me-2"></i>Monthly Quota Usage
+                    <span class="badge bg-primary ms-2">{{ user.card_type }}</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="quota-card p-3 rounded-4" style="background: linear-gradient(145deg, #e3f2fd, #bbdefb);">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <h6 class="text-primary mb-1">Rice</h6>
+                                    <h3 class="fw-bold text-primary mb-0">{{ quota.rice_quota }} kg</h3>
+                                </div>
+                                <div class="rounded-circle bg-white p-3 shadow-sm">
+                                    <i class="fas fa-seedling fa-2x text-primary"></i>
+                                </div>
+                            </div>
+                            <div class="progress-modern mt-2">
+                                <div class="progress-bar bg-primary" style="width: 65%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <small class="text-muted">65% used</small>
+                                <small class="text-primary">35% remaining</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="quota-card p-3 rounded-4" style="background: linear-gradient(145deg, #e8f5e9, #c8e6c9);">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <h6 class="text-success mb-1">Wheat</h6>
+                                    <h3 class="fw-bold text-success mb-0">{{ quota.wheat_quota }} kg</h3>
+                                </div>
+                                <div class="rounded-circle bg-white p-3 shadow-sm">
+                                    <i class="fas fa-bread-slice fa-2x text-success"></i>
+                                </div>
+                            </div>
+                            <div class="progress-modern mt-2">
+                                <div class="progress-bar bg-success" style="width: 40%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <small class="text-muted">40% used</small>
+                                <small class="text-success">60% remaining</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="quota-card p-3 rounded-4" style="background: linear-gradient(145deg, #fff3e0, #ffe0b2);">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <h6 class="text-warning mb-1">Sugar</h6>
+                                    <h3 class="fw-bold text-warning mb-0">{{ quota.sugar_quota }} kg</h3>
+                                </div>
+                                <div class="rounded-circle bg-white p-3 shadow-sm">
+                                    <i class="fas fa-cube fa-2x text-warning"></i>
+                                </div>
+                            </div>
+                            <div class="progress-modern mt-2">
+                                <div class="progress-bar bg-warning" style="width: 20%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <small class="text-muted">20% used</small>
+                                <small class="text-warning">80% remaining</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="quota-card p-3 rounded-4" style="background: linear-gradient(145deg, #e0f7fa, #b2ebf2);">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <h6 class="text-info mb-1">Kerosene</h6>
+                                    <h3 class="fw-bold text-info mb-0">{{ quota.kerosene_quota }} L</h3>
+                                </div>
+                                <div class="rounded-circle bg-white p-3 shadow-sm">
+                                    <i class="fas fa-gas-pump fa-2x text-info"></i>
+                                </div>
+                            </div>
+                            <div class="progress-modern mt-2">
+                                <div class="progress-bar bg-info" style="width: 30%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <small class="text-muted">30% used</small>
+                                <small class="text-info">70% remaining</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Enhanced Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Actions with Print Button -->
+        <div class="card mb-4 border-0 shadow-sm bg-gradient-success text-white">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-4">
+                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                </h5>
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('purchase') }}" class="btn quick-action-btn btn-light text-dark">
+                        <i class="fas fa-shopping-cart me-2 text-success"></i>Make Purchase
+                    </a>
+                    <a href="{{ url_for('complaint') }}" class="btn quick-action-btn btn-light text-dark">
+                        <i class="fas fa-exclamation-triangle me-2 text-warning"></i>File Complaint
+                    </a>
+                    <a href="{{ url_for('history') }}" class="btn quick-action-btn btn-light text-dark">
+                        <i class="fas fa-history me-2 text-primary"></i>View History
+                    </a>
+                    <!-- Print Button with same style as other quick action buttons -->
+                    <button onclick="window.print()" class="btn quick-action-btn btn-light text-dark">
+                        <i class="fas fa-print me-2 text-secondary"></i>Print Dashboard
+                    </button>
+                </div>
+                <div class="mt-3 text-center small text-white-50">
+                    <i class="fas fa-info-circle me-1"></i>Press Ctrl+P or click button to print
+                </div>
+            </div>
+        </div>
+        
+        <!-- Enhanced Family Members -->
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users text-info me-2"></i>Family Members
+                    </h5>
+                    <span class="badge bg-info rounded-pill">{{ family|length + 1 }}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="family-list">
+                    <div class="d-flex align-items-center mb-3 p-3 rounded-4" style="background: linear-gradient(145deg, #667eea22, #764ba222);">
+                        <div class="family-avatar bg-gradient-primary text-white me-3 shadow">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong class="fs-6">{{ card_holder.name }}</strong>
+                                    <div class="small text-muted">
+                                        <i class="fas fa-tag me-1"></i>{{ card_holder.relation }}
+                                        <span class="mx-2">•</span>
+                                        <i class="fas fa-birthday-cake me-1"></i>{{ card_holder.age }} years
+                                    </div>
+                                </div>
+                                <span class="badge bg-primary rounded-pill h-100">Card Holder</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% for member in family %}
+                    <div class="d-flex align-items-center mb-3 p-3 rounded-4 hover-shadow" style="background: #a9a5a5;">
+                        <div class="family-avatar bg-gradient-secondary text-white me-3 shadow-sm">
+                            {% if member.relation == 'Wife' %}
+                                <i class="fas fa-female"></i>
+                            {% elif member.relation == 'Son' %}
+                                <i class="fas fa-male"></i>
+                            {% elif member.relation == 'Daughter' %}
+                                <i class="fas fa-female"></i>
+                            {% else %}
+                                <i class="fas fa-user"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <strong>{{ member.name }}</strong>
+                            <div class="small text-muted">
+                                <i class="fas fa-tag me-1"></i>{{ member.relation }}
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-birthday-cake me-1"></i>{{ member.age }} years
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <a href="{{ url_for('family') }}" class="btn btn-outline-info rounded-pill w-100 mt-3">
+                    <i class="fas fa-external-link-alt me-2"></i>Manage Family
+                </a>
+            </div>
+        </div>
+        
+        <!-- Enhanced Offers Section -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4">
+                <h5 class="mb-0">
+                    <i class="fas fa-gift text-danger me-2"></i>Special Offers
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="offer-card p-4 mb-3 rounded-4" style="background: linear-gradient(145deg, #ff6b6b11, #ff475711);">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-danger p-3 me-3 shadow-sm">
+                            <i class="fas fa-star fa-2x text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">🎉 Festival Season Offer!</h6>
+                            <span class="badge bg-danger rounded-pill">Limited Period</span>
+                        </div>
+                    </div>
+                    <p class="mb-2 fs-5 fw-bold text-danger">Extra 2kg Sugar Free!</p>
+                    <div class="d-flex align-items-center text-muted small">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        Valid until: 25th November 2024
+                    </div>
+                </div>
+                
+                <div class="offer-card p-4 rounded-4" style="background: linear-gradient(145deg, #26de8111, #20bf6b11);">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle bg-success p-3 me-3 shadow-sm">
+                            <i class="fas fa-percentage fa-2x text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">✨ New Scheme Launched</h6>
+                            <span class="badge bg-success rounded-pill">Just Added</span>
+                        </div>
+                    </div>
+                    <p class="mb-3">Additional subsidy for <strong>{{ user.card_type }}</strong> card holders</p>
+                    <a href="#" class="btn btn-outline-success rounded-pill w-100">
+                        Check Eligibility <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Add Font Awesome 6 for wheat-alt icon */
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+    
+    /* Custom animations */
+    .hover-shadow:hover {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s;
+    }
+    
+    /* Notification card animation */
+    .notification-card {
+        transition: all 0.3s;
+        border: 1px solid rgba(255,193,7,0.2);
+    }
+    .notification-card:hover {
+        box-shadow: 0 10px 40px rgba(255,193,7,0.15);
+    }
+    
+    /* Stock icon animation */
+    .stock-icon {
+        transition: all 0.3s;
+    }
+    tr:hover .stock-icon {
+        transform: scale(1.1);
+    }
+    
+    /* Quota card hover effect */
+    .quota-card {
+        transition: all 0.3s;
+        border: 1px solid transparent;
+    }
+    .quota-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border-color: rgba(255,255,255,0.5);
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #764ba2, #667eea);
+    }
+    
+    /* Table row hover effect */
+    .table tbody tr:hover {
+        background: linear-gradient(145deg, #f8f9fa, #ffffff);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    /* Badge animations */
+    .badge {
+        transition: all 0.3s;
+    }
+    .badge:hover {
+        transform: scale(1.05);
+    }
+    
+    /* Progress bar animation */
+    @keyframes progress-bar-stripes {
+        0% { background-position: 1rem 0; }
+        100% { background-position: 0 0; }
+    }
+    
+    /* Text color for helper text */
+    .text-white-50 {
+        color: rgba(255,255,255,0.7) !important;
+    }
+    
+    /* Print icon color */
+    .fa-print {
+        color: #6c757d !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+    
+    // Mark notification as read with animation
+    $('.mark-read-btn').click(function() {
+        const notificationId = $(this).data('id');
+        const button = $(this);
+        const notificationCard = $(this).closest('.notification-card');
+        
+        $.ajax({
+            url: `/notifications/mark_read/${notificationId}`,
+            method: 'POST',
+            success: function(response) {
+                if (response.success) {
+                    // Animate button
+                    button.removeClass('btn-warning').addClass('btn-success');
+                    button.html('<i class="fas fa-check-circle me-2"></i>Read ✓');
+                    button.prop('disabled', true);
+                    
+                    // Fade out NEW badge
+                    notificationCard.find('.badge.bg-danger:contains("NEW")').fadeOut(300);
+                    
+                    // Update notification count in navbar
+                    updateNotificationCount();
+                    
+                    // Show success toast
+                    showToast('Notification marked as read!', 'success');
+                }
+            }
+        });
+    });
+    
+    // Update notification count in navbar
+    function updateNotificationCount() {
+        $.ajax({
+            url: '/notifications/count',
+            method: 'GET',
+            success: function(response) {
+                const navbarBadge = $('#notificationBadge');
+                const notificationHeader = $('.pulse-ring .badge');
+                
+                if (response.count > 0) {
+                    navbarBadge.text(response.count).fadeIn();
+                    notificationHeader.text(response.count + ' New').fadeIn();
+                } else {
+                    navbarBadge.fadeOut();
+                    notificationHeader.fadeOut();
+                }
+            }
+        });
+    }
+    
+    // Toast notification function
+    function showToast(message, type = 'success') {
+        const toast = $(`
+            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+                <div class="toast align-items-center text-white bg-${type} border-0" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas fa-check-circle me-2"></i>${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            </div>
+        `);
+        
+        $('body').append(toast);
+        const toastElement = toast.find('.toast');
+        const bsToast = new bootstrap.Toast(toastElement, { delay: 3000 });
+        bsToast.show();
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 4000);
+    }
+    
+    // Animate progress bars on view
+    function animateProgressBars() {
+        $('.progress-bar').each(function() {
+            const width = $(this).data('width') || $(this).css('width');
+            $(this).css('width', '0%').animate({
+                width: width
+            }, 800);
+        });
+    }
+    
+    // Call on page load
+    animateProgressBars();
+    
+    // Smooth hover effects for cards
+    $('.stat-card, .offer-card, .quota-card').hover(
+        function() { $(this).addClass('shadow-lg'); },
+        function() { $(this).removeClass('shadow-lg'); }
+    );
+    
+    // Add keyboard shortcut hint
+    $(document).keydown(function(e) {
+        if (e.ctrlKey && e.key === 'p') {
+            e.preventDefault();
+            window.print();
+        }
+    });
+});
+</script>
+{% endblock %}

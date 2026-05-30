@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Fingerprint - Smart Ration System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-fingerprint me-2"></i>
+                        Fingerprint Verification
+                    </h4>
+                </div>
+                
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <div class="biometric-icon scanning">
+                            <i class="fas fa-fingerprint fa-5x"></i>
+                            <div class="scan-animation"></div>
+                        </div>
+                    </div>
+                    
+                    <h4 class="mb-3">Place Your Finger on Scanner</h4>
+                    <p class="text-muted mb-4">
+                        Place your registered finger on the fingerprint scanner for verification.
+                    </p>
+                    
+                    <div class="alert alert-info d-none" id="verification-message">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span id="message-text"></span>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button id="start-verification" class="btn btn-success btn-lg px-5">
+                            <i class="fas fa-play me-2"></i>
+                            Start Verification
+                        </button>
+                        
+                        <button id="cancel-verification" class="btn btn-outline-secondary btn-lg px-5 ms-3">
+                            <i class="fas fa-times me-2"></i>
+                            Cancel
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4" id="verification-result"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.biometric-icon.scanning {
+    position: relative;
+    display: inline-block;
+    color: #198754;
+    animation: pulse 2s infinite;
+}
+
+.scan-animation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(25, 135, 84, 0.3) 50%, 
+        transparent 100%);
+    animation: scan 2s infinite;
+    border-radius: 50%;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes scan {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startBtn = document.getElementById('start-verification');
+    const cancelBtn = document.getElementById('cancel-verification');
+    const messageDiv = document.getElementById('verification-message');
+    const messageText = document.getElementById('message-text');
+    const resultDiv = document.getElementById('verification-result');
+    
+    let isScanning = false;
+    
+    startBtn.addEventListener('click', function() {
+        if (isScanning) return;
+        
+        isScanning = true;
+        startBtn.disabled = true;
+        startBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Scanning...';
+        messageDiv.classList.remove('d-none');
+        messageText.textContent = 'Please place your finger on the scanner...';
+        
+        // Simulate scanning process
+        simulateScan();
+    });
+    
+    cancelBtn.addEventListener('click', function() {
+        if (isScanning) {
+            isScanning = false;
+            resetButton();
+            messageDiv.classList.add('d-none');
+            resultDiv.innerHTML = '';
+        }
+    });
+    
+    function simulateScan() {
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 10;
+            
+            if (progress <= 40) {
+                messageText.textContent = 'Initializing scanner...';
+            } else if (progress <= 80) {
+                messageText.textContent = 'Scanning fingerprint...';
+            } else {
+                messageText.textContent = 'Verifying identity...';
+            }
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                verifyFingerprint();
+            }
+        }, 300);
+    }
+    
+    function verifyFingerprint() {
+        fetch('{{ url_for("api_biometric_verify") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.verified) {
+                // Successful verification
+                messageDiv.classList.remove('alert-info');
+                messageDiv.classList.add('alert-success');
+                messageText.innerHTML = '<i class="fas fa-check-circle me-2"></i>Fingerprint verified successfully!';
+                
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <h5><i class="fas fa-check-circle me-2"></i>Identity Confirmed</h5>
+                        <p>User: {{ user.name }}</p>
+                        <p>Card Number: {{ user.card_number }}</p>
+                        <p>Time: ${new Date().toLocaleTimeString()}</p>
+                    </div>
+                `;
+                
+                // Redirect after delay
+                setTimeout(() => {
+                    window.location.href = '{{ url_for("dashboard") }}';
+                }, 2000);
+            } else {
+                // Failed verification
+                messageDiv.classList.remove('alert-info');
+                messageDiv.classList.add('alert-danger');
+                messageText.innerHTML = '<i class="fas fa-times-circle me-2"></i>Verification failed!';
+                
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h5><i class="fas fa-times-circle me-2"></i>Verification Failed</h5>
+                        <p>${data.message || 'Fingerprint not recognized'}</p>
+                        <button onclick="retryVerification()" class="btn btn-warning mt-2">
+                            <i class="fas fa-redo me-2"></i>Try Again
+                        </button>
+                    </div>
+                `;
+                
+                resetButton();
+            }
+            
+            isScanning = false;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            messageDiv.classList.remove('alert-info');
+            messageDiv.classList.add('alert-danger');
+            messageText.textContent = 'Error during verification. Please try again.';
+            resetButton();
+            isScanning = false;
+        });
+    }
+    
+    function resetButton() {
+        startBtn.disabled = false;
+        startBtn.innerHTML = '<i class="fas fa-play me-2"></i>Start Verification';
+    }
+    
+    window.retryVerification = function() {
+        resultDiv.innerHTML = '';
+        messageDiv.classList.remove('alert-danger', 'alert-success');
+        messageDiv.classList.add('alert-info', 'd-none');
+        startBtn.click();
+    };
+});
+</script>
+{% endblock %}

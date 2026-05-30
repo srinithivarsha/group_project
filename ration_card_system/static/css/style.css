@@ -1,0 +1,94 @@
+/* Biometric styles */
+.biometric-container {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.biometric-scanner {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #f0f0f0, #ffffff);
+    box-shadow: 5px 5px 15px #d1d1d1, -5px -5px 15px #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.biometric-scanner::before {
+    content: '';
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #4dabf7, #339af0);
+    opacity: 0.1;
+}
+
+.biometric-scanner i {
+    font-size: 4rem;
+    color: #339af0;
+    animation: fingerprint-pulse 2s infinite;
+}
+
+@keyframes fingerprint-pulse {
+    0% { opacity: 0.7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+    100% { opacity: 0.7; transform: scale(1); }
+}
+
+/* Biometric status badges */
+.biometric-badge {
+    font-size: 0.9rem;
+    padding: 0.25rem 0.75rem;
+}
+
+/* Scanner animation */
+.scanner-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #339af0, transparent);
+    animation: scan 3s linear infinite;
+}
+
+@keyframes scan {
+    0% { top: 0; }
+    50% { top: 100%; }
+    100% { top: 0; }
+}
+
+/* Verification status */
+.verification-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    animation: fadeIn 0.5s;
+}
+
+.verification-failed {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    animation: shake 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}

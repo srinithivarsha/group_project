@@ -1,0 +1,38 @@
+{% extends "admin/admin_base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">📦 Manage Stock</h2>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Item Name</th>
+                <th>Available Quantity</th>
+                <th>Unit</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Rice</td>
+                <td>800</td>
+                <td>kg</td>
+                <td><button class="btn btn-sm btn-primary">Update</button></td>
+            </tr>
+            <tr>
+                <td>Wheat</td>
+                <td>600</td>
+                <td>kg</td>
+                <td><button class="btn btn-sm btn-primary">Update</button></td>
+            </tr>
+            <tr>
+                <td>Sugar</td>
+                <td>450</td>
+                <td>kg</td>
+                <td><button class="btn btn-sm btn-primary">Update</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

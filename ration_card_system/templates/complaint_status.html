@@ -1,0 +1,491 @@
+{% extends "base.html" %}
+
+{% block title %}Complaint Status{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">
+                        <i class="fas fa-tasks me-2"></i>Complaint Status
+                    </h3>
+                    <a href="{{ url_for('complaint') }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus me-1"></i>New Complaint
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Search and Filter Section -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" class="form-control" placeholder="Search complaints by ID, shop name, or type...">
+                            <button class="btn btn-outline-primary" type="button">Search</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select" id="statusFilter">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                </div>
+
+                {% if complaints %}
+                <!-- Complaints List -->
+                <div class="row">
+                    <div class="col-12">
+                        {% for complaint in complaints %}
+                        <div class="card mb-3 border-{% if complaint.status == 'Pending' %}warning
+                                                  {% elif complaint.status == 'In Progress' %}info
+                                                  {% elif complaint.status == 'Resolved' %}success
+                                                  {% elif complaint.status == 'Rejected' %}danger
+                                                  {% else %}light{% endif %} shadow-sm">
+                            <div class="card-header bg-{% if complaint.status == 'Pending' %}warning
+                                                    {% elif complaint.status == 'In Progress' %}info
+                                                    {% elif complaint.status == 'Resolved' %}success
+                                                    {% elif complaint.status == 'Rejected' %}danger
+                                                    {% else %}light{% endif %} bg-opacity-10">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">Complaint ID: <strong>CMP-{{ complaint.id }}</strong></h6>
+                                        <small class="text-muted">Filed on: {{ complaint.date }}</small>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-{% if complaint.priority == 'High' %}danger
+                                                          {% elif complaint.priority == 'Medium' %}warning
+                                                          {% else %}success{% endif %} me-2">
+                                            {{ complaint.priority }} Priority
+                                        </span>
+                                        <span class="badge bg-{% if complaint.status == 'Pending' %}warning
+                                                          {% elif complaint.status == 'In Progress' %}info
+                                                          {% elif complaint.status == 'Resolved' %}success
+                                                          {% elif complaint.status == 'Rejected' %}danger
+                                                          {% else %}secondary{% endif %}">
+                                            {{ complaint.status }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h5 class="card-title">{{ complaint.type|title }} Issue</h5>
+                                        <p class="card-text">{{ complaint.description }}</p>
+                                        <div class="mt-3">
+                                            <p class="mb-1">
+                                                <strong>Shop:</strong> {{ complaint.shop_name }}
+                                            </p>
+                                            <p class="mb-1">
+                                                <strong>Card Number:</strong> {{ complaint.card_number }}
+                                            </p>
+                                            <p class="mb-0">
+                                                <strong>Filed By:</strong> {{ complaint.name }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card bg-light border-0 h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-subtitle mb-3 text-muted">
+                                                    <i class="fas fa-history me-2"></i>Timeline
+                                                </h6>
+                                                <ul class="timeline timeline-vertical">
+                                                    <li class="timeline-item">
+                                                        <div class="timeline-marker bg-primary"></div>
+                                                        <div class="timeline-content">
+                                                            <small class="text-muted">Filed</small>
+                                                            <p class="mb-0">{{ complaint.date }}</p>
+                                                        </div>
+                                                    </li>
+                                                    {% if complaint.status == 'In Progress' %}
+                                                    <li class="timeline-item">
+                                                        <div class="timeline-marker bg-info"></div>
+                                                        <div class="timeline-content">
+                                                            <small class="text-muted">Under Review</small>
+                                                            <p class="mb-0">Officer assigned</p>
+                                                        </div>
+                                                    </li>
+                                                    {% elif complaint.status == 'Resolved' %}
+                                                    <li class="timeline-item">
+                                                        <div class="timeline-marker bg-success"></div>
+                                                        <div class="timeline-content">
+                                                            <small class="text-muted">Resolved</small>
+                                                            <p class="mb-0">Issue addressed</p>
+                                                        </div>
+                                                    </li>
+                                                    {% elif complaint.status == 'Rejected' %}
+                                                    <li class="timeline-item">
+                                                        <div class="timeline-marker bg-danger"></div>
+                                                        <div class="timeline-content">
+                                                            <small class="text-muted">Rejected</small>
+                                                            <p class="mb-0">Reason provided</p>
+                                                        </div>
+                                                    </li>
+                                                    {% endif %}
+                                                </ul>
+                                                
+                                                {% if complaint.status == 'Resolved' %}
+                                                <div class="mt-3">
+                                                    <div class="alert alert-success mb-0">
+                                                        <i class="fas fa-check-circle me-2"></i>
+                                                        <strong>Resolved</strong><br>
+                                                        <small>Your complaint has been successfully resolved.</small>
+                                                    </div>
+                                                </div>
+                                                {% elif complaint.status == 'Rejected' %}
+                                                <div class="mt-3">
+                                                    <div class="alert alert-danger mb-0">
+                                                        <i class="fas fa-times-circle me-2"></i>
+                                                        <strong>Rejected</strong><br>
+                                                        <small>Your complaint was rejected. Check reason.</small>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-primary me-2" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#detailsModal{{ complaint.id }}">
+                                            <i class="fas fa-eye me-1"></i>View Details
+                                        </button>
+                                        {% if complaint.status == 'Pending' %}
+                                        <button class="btn btn-sm btn-outline-warning me-2"
+                                                onclick="updateComplaintStatus('{{ complaint.id }}', 'withdraw')">
+                                            <i class="fas fa-times me-1"></i>Withdraw
+                                        </button>
+                                        {% endif %}
+                                        <button class="btn btn-sm btn-outline-info"
+                                                onclick="generateReceipt('{{ complaint.id }}')">
+                                            <i class="fas fa-print me-1"></i>Print Receipt
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">
+                                            Last updated: {{ complaint.date }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Details Modal -->
+                        <div class="modal fade" id="detailsModal{{ complaint.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title">
+                                            <i class="fas fa-file-alt me-2"></i>
+                                            Complaint Details: CMP-{{ complaint.id }}
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" 
+                                                data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6>Complaint Information</h6>
+                                                <table class="table table-sm">
+                                                    <tr>
+                                                        <th>Complaint ID:</th>
+                                                        <td>CMP-{{ complaint.id }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Type:</th>
+                                                        <td>{{ complaint.type|title }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Priority:</th>
+                                                        <td>
+                                                            <span class="badge bg-{% if complaint.priority == 'High' %}danger
+                                                                              {% elif complaint.priority == 'Medium' %}warning
+                                                                              {% else %}success{% endif %}">
+                                                                {{ complaint.priority }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Status:</th>
+                                                        <td>
+                                                            <span class="badge bg-{% if complaint.status == 'Pending' %}warning
+                                                                              {% elif complaint.status == 'In Progress' %}info
+                                                                              {% elif complaint.status == 'Resolved' %}success
+                                                                              {% elif complaint.status == 'Rejected' %}danger
+                                                                              {% else %}secondary{% endif %}">
+                                                                {{ complaint.status }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Filed Date:</th>
+                                                        <td>{{ complaint.date }}</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Shop & User Details</h6>
+                                                <table class="table table-sm">
+                                                    <tr>
+                                                        <th>Shop Name:</th>
+                                                        <td>{{ complaint.shop_name }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Shop ID:</th>
+                                                        <td>SHOP-{{ complaint.shop_id }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Card Number:</th>
+                                                        <td>{{ complaint.card_number }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Filed By:</th>
+                                                        <td>{{ complaint.name }}</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-3">
+                                            <div class="col-12">
+                                                <h6>Description</h6>
+                                                <div class="card bg-light">
+                                                    <div class="card-body">
+                                                        {{ complaint.description }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% if complaint.status == 'Resolved' %}
+                                        <div class="row mt-3">
+                                            <div class="col-12">
+                                                <h6 class="text-success">
+                                                    <i class="fas fa-check-circle me-2"></i>Resolution Details
+                                                </h6>
+                                                <div class="alert alert-success">
+                                                    <p><strong>Resolution:</strong> Complaint resolved successfully.</p>
+                                                    <p><strong>Action Taken:</strong> Shopkeeper was warned and customer compensated.</p>
+                                                    <p><strong>Resolution Date:</strong> {{ complaint.date }}</p>
+                                                    <p><strong>Officer:</strong> Ration Officer - Zone 5</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% elif complaint.status == 'Rejected' %}
+                                        <div class="row mt-3">
+                                            <div class="col-12">
+                                                <h6 class="text-danger">
+                                                    <i class="fas fa-times-circle me-2"></i>Rejection Reason
+                                                </h6>
+                                                <div class="alert alert-danger">
+                                                    <p><strong>Reason:</strong> Insufficient evidence provided.</p>
+                                                    <p><strong>Remarks:</strong> Please provide proper evidence for investigation.</p>
+                                                    <p><strong>Rejection Date:</strong> {{ complaint.date }}</p>
+                                                    <p><strong>Officer:</strong> Senior Ration Officer</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" onclick="generateReceipt('{{ complaint.id }}')">
+                                            <i class="fas fa-print me-2"></i>Print Receipt
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <!-- No Complaints State -->
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Complaints Found</h4>
+                        <p class="text-muted">You haven't filed any complaints yet.</p>
+                    </div>
+                    <a href="{{ url_for('complaint') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i>File Your First Complaint
+                    </a>
+                </div>
+                {% endif %}
+
+                <!-- Statistics -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <h5 class="card-title mb-4">
+                                    <i class="fas fa-chart-pie me-2"></i>Your Complaint Statistics
+                                </h5>
+                                <div class="row text-center">
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="card border-0 bg-white shadow-sm">
+                                            <div class="card-body">
+                                                <h1 class="display-6 text-primary mb-2">{{ complaints|length }}</h1>
+                                                <p class="text-muted mb-0">Total Complaints</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="card border-0 bg-white shadow-sm">
+                                            <div class="card-body">
+                                                <h1 class="display-6 text-warning mb-2">
+                                                    {{ complaints|selectattr('status', 'equalto', 'Pending')|list|length }}
+                                                </h1>
+                                                <p class="text-muted mb-0">Pending</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="card border-0 bg-white shadow-sm">
+                                            <div class="card-body">
+                                                <h1 class="display-6 text-success mb-2">
+                                                    {{ complaints|selectattr('status', 'equalto', 'Resolved')|list|length }}
+                                                </h1>
+                                                <p class="text-muted mb-0">Resolved</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="card border-0 bg-white shadow-sm">
+                                            <div class="card-body">
+                                                <h1 class="display-6 text-info mb-2">
+                                                    {% if complaints|length > 0 %}
+                                                        {{ ((complaints|selectattr('status', 'equalto', 'Resolved')|list|length / complaints|length) * 100)|round|int }}%
+                                                    {% else %}
+                                                        0%
+                                                    {% endif %}
+                                                </h1>
+                                                <p class="text-muted mb-0">Resolution Rate</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter complaints by status
+    const statusFilter = document.getElementById('statusFilter');
+    statusFilter.addEventListener('change', function() {
+        const status = this.value;
+        const complaintCards = document.querySelectorAll('.card.mb-3');
+        
+        complaintCards.forEach(card => {
+            const cardStatus = card.querySelector('.badge:last-child').textContent.trim().toLowerCase();
+            
+            if (status === 'all' || cardStatus === status) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+    
+    // Search functionality
+    const searchInput = document.querySelector('input[type="text"]');
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const complaintCards = document.querySelectorAll('.card.mb-3');
+        
+        complaintCards.forEach(card => {
+            const cardText = card.textContent.toLowerCase();
+            if (cardText.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+});
+
+function updateComplaintStatus(complaintId, action) {
+    if (confirm(`Are you sure you want to ${action} this complaint?`)) {
+        // In a real app, you would make an API call here
+        alert(`Complaint ${action} request submitted. Note: This is a demo.`);
+        
+        // Simulate status update
+        const statusBadge = document.querySelector(`#detailsModal${complaintId} .badge`);
+        if (action === 'withdraw') {
+            statusBadge.textContent = 'Withdrawn';
+            statusBadge.className = 'badge bg-secondary';
+        }
+    }
+}
+
+function generateReceipt(complaintId) {
+    // In a real app, you would generate a PDF receipt
+    alert(`Generating receipt for Complaint ID: CMP-${complaintId}\n\nNote: This is a demo. In production, this would generate a printable PDF.`);
+    
+    // Open print dialog
+    window.print();
+}
+
+// Add CSS for timeline
+const style = document.createElement('style');
+style.textContent = `
+.timeline {
+    position: relative;
+    list-style: none;
+    padding: 0;
+}
+.timeline-vertical .timeline-item {
+    position: relative;
+    padding-left: 2rem;
+    margin-bottom: 1rem;
+}
+.timeline-vertical .timeline-item:last-child {
+    margin-bottom: 0;
+}
+.timeline-vertical .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+.timeline-vertical .timeline-item:last-child::before {
+    height: 1rem;
+}
+.timeline-marker {
+    position: absolute;
+    left: -0.375rem;
+    top: 0;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    z-index: 1;
+}
+.timeline-content {
+    padding-bottom: 0.5rem;
+}
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

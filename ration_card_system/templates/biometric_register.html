@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Register Fingerprint - Smart Ration System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-fingerprint me-2"></i>
+                        Fingerprint Registration
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    {% if biometric_registered %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Fingerprint already registered!</strong>
+                        <p class="mb-0 mt-2">
+                            Your fingerprint is already registered in the system.
+                            You can verify it anytime or re-register if needed.
+                        </p>
+                    </div>
+                    
+                    <div class="text-center mb-4">
+                        <div class="biometric-icon registered mb-3">
+                            <i class="fas fa-fingerprint fa-4x"></i>
+                            <i class="fas fa-check check-mark"></i>
+                        </div>
+                        <h5>Fingerprint Registered</h5>
+                        <p class="text-muted">Card: {{ user.card_number }}</p>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a href="{{ url_for('biometric_verify') }}" class="btn btn-success w-100 mb-3">
+                                <i class="fas fa-check-circle me-2"></i>Verify Now
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <form method="POST" action="{{ url_for('biometric_delete') }}" 
+                                  onsubmit="return confirm('Are you sure you want to delete your fingerprint registration?');">
+                                <button type="submit" class="btn btn-danger w-100">
+                                    <i class="fas fa-trash me-2"></i>Delete Registration
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    {% else %}
+                    <div class="text-center mb-4">
+                        <div class="biometric-icon mb-3">
+                            <i class="fas fa-fingerprint fa-4x"></i>
+                        </div>
+                        <h5>Register Your Fingerprint</h5>
+                        <p class="text-muted">
+                            Place your finger on the scanner to register for secure biometric authentication.
+                        </p>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Instructions:</strong>
+                        <ol class="mb-0 mt-2">
+                            <li>Place your finger on the scanner when ready</li>
+                            <li>Keep your finger still until registration is complete</li>
+                            <li>You'll need to scan your finger twice for verification</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="text-center mt-5">
+                        <form method="POST">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-fingerprint me-2"></i>
+                                Start Fingerprint Registration
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 0%" id="registration-progress">
+                            </div>
+                        </div>
+                        <div class="text-center mt-2">
+                            <small class="text-muted" id="progress-text">Ready to start...</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <a href="{{ url_for('biometric_status') }}" class="btn btn-outline-info">
+                                <i class="fas fa-info-circle me-2"></i>View Status
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.biometric-icon {
+    position: relative;
+    display: inline-block;
+    color: #0d6efd;
+}
+
+.biometric-icon.registered .check-mark {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: #198754;
+    color: white;
+    border-radius: 50%;
+    padding: 3px;
+    font-size: 0.8rem;
+}
+
+.progress {
+    height: 25px;
+    border-radius: 15px;
+}
+</style>
+
+{% if not biometric_registered %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const progressBar = document.getElementById('registration-progress');
+    const progressText = document.getElementById('progress-text');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 10;
+            progressBar.style.width = progress + '%';
+            
+            if (progress <= 30) {
+                progressText.textContent = 'Initializing scanner...';
+            } else if (progress <= 60) {
+                progressText.textContent = 'Scanning first fingerprint...';
+            } else if (progress <= 80) {
+                progressText.textContent = 'Scanning second fingerprint...';
+            } else {
+                progressText.textContent = 'Processing and saving...';
+            }
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    form.submit();
+                }, 1000);
+            }
+        }, 300);
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

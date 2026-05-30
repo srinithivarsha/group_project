@@ -1,0 +1,154 @@
+<!-- templates/purchase.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Items - Ration Card System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Your existing CSS styles here */
+        body {
+            background: #f8f9fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 0 0 20px 20px;
+        }
+        /* ... other styles ... */
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar (if you have one) -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <!-- ... navbar content ... -->
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Page Header -->
+        <div class="header mb-4">
+            <h1><i class="fas fa-shopping-cart"></i> Purchase Items</h1>
+            <p class="lead">Select items from available stock</p>
+        </div>
+
+        <!-- User Info Card -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5><i class="fas fa-user"></i> {{ user.name }}</h5>
+                        <p class="mb-1">Card: {{ user.card_number }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5><i class="fas fa-credit-card"></i> {{ user.card_type }} Card</h5>
+                        <p class="mb-1">Balance: ₹{{ quota_balance }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5><i class="fas fa-calendar"></i> Quota Validity</h5>
+                        <p class="mb-1">Valid till: {{ quota_validity }}</p>
+                        <small class="text-muted">{{ quota_remaining_days }} days remaining</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quota Usage Progress -->
+        <div class="row mb-4">
+            {% for quota in quota_usage %}
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ quota.name }}</strong>
+                            <span>{{ quota.used }}/{{ quota.total }} {{ quota.unit }}</span>
+                        </div>
+                        {% set percent = (quota.used / quota.total * 100)|round(0) if quota.total else 0 %}
+                        <div class="progress mt-2" style="height: 8px;">
+                            <div class="progress-bar bg-{{ quota.color }}" style="width: {{ percent }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <form method="POST" action="{{ url_for('confirm_purchase') }}">
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-store"></i> Shop and Payment</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="shop_id">Fair Price Shop</label>
+                            <select class="form-select" id="shop_id" name="shop_id" required>
+                                {% for shop in shops %}
+                                <option value="{{ shop.id }}">{{ shop.name }} - {{ shop.location }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="payment_method">Payment Method</label>
+                            <select class="form-select" id="payment_method" name="payment_method" required>
+                                <option value="quota_balance">Quota Balance</option>
+                                <option value="cash">Cash</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-boxes"></i> Available Items</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for item in items %}
+                        <div class="col-md-4 col-sm-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h5 class="card-title mb-1">{{ item.name }}</h5>
+                                            <small class="text-muted">{{ item.stock }} {{ item.unit }} in stock</small>
+                                        </div>
+                                        <span class="badge bg-primary">Rs. {{ "%.2f"|format(item.price) }}/{{ item.unit }}</span>
+                                    </div>
+                                    <p class="mb-2">Quota: {{ item.user_quota }} {{ item.unit }}</p>
+                                    <label class="form-label" for="quantity_{{ item.id }}">Quantity</label>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="quantity_{{ item.id }}"
+                                        name="quantity_{{ item.id }}"
+                                        min="0"
+                                        max="{{ item.user_quota }}"
+                                        step="0.1"
+                                        value="0">
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-check-circle"></i> Review Purchase
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

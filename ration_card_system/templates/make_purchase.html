@@ -1,0 +1,791 @@
+{% extends "base.html" %}
+
+{% block title %}Make Purchase{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">
+                        <i class="fas fa-shopping-cart me-2"></i>Make Purchase
+                    </h3>
+                    <span class="badge bg-light text-primary fs-6">
+                        <i class="fas fa-credit-card me-1"></i>Card: {{ user.card_number }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Purchase Form -->
+                <form method="POST" action="{{ url_for('make_purchase') }}" id="purchaseForm">
+                    <!-- Shop Selection -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-store me-2"></i>Select Ration Shop
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Choose Shop:</label>
+                                        <select class="form-select" name="shop_id" required id="shopSelect">
+                                            <option value="">Select a ration shop</option>
+                                            {% for shop in shops %}
+                                            <option value="{{ shop.id }}">
+                                                {{ shop.name }} - {{ shop.location }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Select the shop where you want to collect your ration
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        {% for shop in shops[:2] %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card border shop-card" data-shop-id="{{ shop.id }}">
+                                                <div class="card-body text-center p-3">
+                                                    <i class="fas fa-store fa-2x text-primary mb-2"></i>
+                                                    <h6 class="card-title mb-1">{{ shop.name }}</h6>
+                                                    <small class="text-muted">{{ shop.location }}</small>
+                                                    <div class="mt-2">
+                                                        <small><i class="fas fa-clock me-1"></i>{{ shop.timings }}</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-credit-card me-2"></i>Payment Method
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Select Payment Method:</label>
+                                        <select class="form-select" name="payment_method" required id="paymentMethod">
+                                            <option value="">Select payment method</option>
+                                            <option value="cash">Cash Payment</option>
+                                            <option value="digital">Digital Payment (UPI/Wallet)</option>
+                                            <option value="card">Debit/Credit Card</option>
+                                        </select>
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Choose your preferred payment method
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card border payment-option" data-method="cash">
+                                                <div class="card-body text-center p-3">
+                                                    <i class="fas fa-money-bill-wave fa-2x text-success mb-2"></i>
+                                                    <h6 class="card-title mb-0">Cash</h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card border payment-option" data-method="digital">
+                                                <div class="card-body text-center p-3">
+                                                    <i class="fas fa-mobile-alt fa-2x text-primary mb-2"></i>
+                                                    <h6 class="card-title mb-0">Digital</h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card border payment-option" data-method="card">
+                                                <div class="card-body text-center p-3">
+                                                    <i class="fas fa-credit-card fa-2x text-warning mb-2"></i>
+                                                    <h6 class="card-title mb-0">Card</h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Payment Info -->
+                                    <div class="alert alert-info mt-3">
+                                        <h6 class="alert-heading">
+                                            <i class="fas fa-lightbulb me-2"></i>Payment Information
+                                        </h6>
+                                        <ul class="mb-0 small">
+                                            <li>Cash payments must be made at the shop counter</li>
+                                            <li>Digital payments are processed instantly</li>
+                                            <li>Card payments may have additional charges</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quota Summary -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-chart-bar me-2"></i>Your Monthly Quota Usage
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        {% for quota in quota_usage %}
+                                        <div class="col-md-3 col-sm-6 mb-3">
+                                            <div class="card border-0 h-100">
+                                                <div class="card-body">
+                                                    <h6 class="card-title text-muted">{{ quota.name }}</h6>
+                                                    <div class="progress mb-2" style="height: 25px;">
+                                                        {% set percentage = ((quota.used / quota.total) * 100) if quota.total > 0 else 0 %}
+                                                        <div class="progress-bar bg-{{ quota.color }}" 
+                                                             role="progressbar" 
+                                                             style="width:  percentageround(1) "
+                                                             aria-valuenow="{{ quota.used }}" 
+                                                             aria-valuemin="0" 
+                                                             aria-valuemax="{{ quota.total }}">
+                                                            {{ quota.used|round(1) }}/{{ quota.total }} {{ quota.unit }}
+                                                        </div>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        {% if quota.total > 0 %}
+                                                            {{ ((quota.total - quota.used) / quota.total * 100)|round(1) }}% remaining
+                                                        {% else %}
+                                                            0% remaining
+                                                        {% endif %}
+                                                    </small>
+                                                    <div class="mt-2">
+                                                        <small class="text-success">
+                                                            <i class="fas fa-check-circle me-1"></i>
+                                                            Available: {{ (quota.total - quota.used)|round(1) }} {{ quota.unit }}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-md-8">
+                                            <div class="alert alert-warning mb-0">
+                                                <h6 class="alert-heading">
+                                                    <i class="fas fa-calendar-alt me-2"></i>Quota Validity
+                                                </h6>
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <strong>Balance:</strong> ₹{{ quota_balance }}
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <strong>Valid Until:</strong> {{ quota_validity }}
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <strong>Days Left:</strong> 
+                                                        <span class="badge bg-{{ 'success' if quota_remaining_days > 7 else 'warning' if quota_remaining_days > 0 else 'danger' }}">
+                                                            {{ quota_remaining_days }} days
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <small class="mt-2 d-block">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    Quota resets on {{ quota_reset_date }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card border-success">
+                                                <div class="card-body text-center">
+                                                    <h5 class="card-title text-success mb-2">Quota Summary</h5>
+                                                    <div class="display-6 text-success mb-2">₹{{ quota_balance }}</div>
+                                                    <small class="text-muted">Available Balance</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Items Selection -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-list-alt me-2"></i>Select Items & Quantities
+                                    </h6>
+                                    <div>
+                                        <span class="badge bg-info me-2">
+                                            <i class="fas fa-box me-1"></i>{{ items|length }} Items Available
+                                        </span>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="resetQuantities">
+                                            <i class="fas fa-redo me-1"></i>Reset All
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3" id="itemsContainer">
+                                        {% for item in items %}
+                                        <div class="col-lg-4 col-md-6">
+                                            <div class="card h-100 item-card border-{{ 'success' if item.stock > 50 else 'warning' if item.stock > 0 else 'danger' }}">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                                        <h6 class="card-title mb-1">{{ item.name }}</h6>
+                                                        <span class="badge bg-success fs-6">₹{{ item.price }}/{{ item.unit }}</span>
+                                                    </div>
+                                                    
+                                                    <!-- Item Description -->
+                                                    <p class="card-text small text-muted mb-2">
+                                                        <i class="fas fa-info-circle me-1"></i>{{ item.description }}
+                                                    </p>
+                                                    
+                                                    <!-- Stock Status -->
+                                                    <div class="mb-3">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-warehouse me-1"></i>
+                                                            Stock: <span class="fw-bold">{{ item.stock }} {{ item.unit }}</span>
+                                                        </small>
+                                                        {% if item.stock < 50 %}
+                                                        <span class="badge bg-warning ms-2">Low Stock</span>
+                                                        {% endif %}
+                                                    </div>
+
+                                                    <!-- Quota Info -->
+                                                    <div class="mb-3">
+                                                        <small class="text-info">
+                                                            <i class="fas fa-user-circle me-1"></i>
+                                                            Your quota: <span class="fw-bold">{{ item.user_quota }} {{ item.unit }}</span>
+                                                        </small>
+                                                    </div>
+
+                                                    <!-- Quantity Controls -->
+                                                    <div class="input-group input-group-sm mb-2">
+                                                        <button class="btn btn-outline-secondary decrement-btn" type="button" data-item-id="{{ item.id }}">
+                                                            <i class="fas fa-minus"></i>
+                                                        </button>
+                                                        <input type="number" 
+                                                               class="form-control quantity-input text-center fw-bold" 
+                                                               id="quantity_{{ item.id }}" 
+                                                               name="item_{{ item.id }}" 
+                                                               min="0" 
+                                                               max="{{ [item.user_quota, item.stock]|min }}"
+                                                               value="0"
+                                                               step="0.5"
+                                                               placeholder="0"
+                                                               data-max-quota="{{ item.user_quota }}"
+                                                               data-stock="{{ item.stock }}"
+                                                               data-price="{{ item.price }}"
+                                                               data-item-name="{{ item.name }}"
+                                                               data-unit="{{ item.unit }}">
+                                                        <button class="btn btn-outline-secondary increment-btn" type="button" data-item-id="{{ item.id }}">
+                                                            <i class="fas fa-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="text-center">
+                                                        <small class="text-muted">Step: 0.5 {{ item.unit }}</small>
+                                                    </div>
+
+                                                    <!-- Item Total -->
+                                                    <div class="mt-2">
+                                                        <small class="text-muted d-flex justify-content-between">
+                                                            <span>Total:</span>
+                                                            <span class="item-total fw-bold text-success" id="total_{{ item.id }}">₹0.00</span>
+                                                        </small>
+                                                    </div>
+
+                                                    <!-- Category Badge -->
+                                                    <div class="mt-2">
+                                                        {% if item.category == 'grain' %}
+                                                            <span class="badge bg-primary">{{ item.category|title }}</span>
+                                                        {% elif item.category == 'sugar' %}
+                                                            <span class="badge bg-warning">{{ item.category|title }}</span>
+                                                        {% elif item.category == 'fuel' %}
+                                                            <span class="badge bg-danger">{{ item.category|title }}</span>
+                                                        {% elif item.category == 'pulse' %}
+                                                            <span class="badge" style="background-color: #8B4513;">{{ item.category|title }}</span>
+                                                        {% elif item.category == 'oil' %}
+                                                            <span class="badge" style="background-color: #6f42c1;">{{ item.category|title }}</span>
+                                                        {% else %}
+                                                            <span class="badge bg-info">{{ item.category|title }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <!-- Quick Select Buttons -->
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <h6 class="mb-3">
+                                                <i class="fas fa-bolt me-2"></i>Quick Select
+                                            </h6>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <button type="button" class="btn btn-outline-primary btn-sm" data-quantity="1">
+                                                    1 kg/L
+                                                </button>
+                                                <button type="button" class="btn btn-outline-primary btn-sm" data-quantity="2">
+                                                    2 kg/L
+                                                </button>
+                                                <button type="button" class="btn btn-outline-primary btn-sm" data-quantity="5">
+                                                    5 kg/L
+                                                </button>
+                                                <button type="button" class="btn btn-outline-primary btn-sm" data-quantity="10">
+                                                    10 kg/L
+                                                </button>
+                                                <button type="button" class="btn btn-outline-success btn-sm" id="selectAllHalf">
+                                                    Half Quota
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger btn-sm" id="selectAllFull">
+                                                    Full Quota
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary & Submit -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- Recent Purchases -->
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-history me-2"></i>Recent Purchases
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    {% if recent_purchases %}
+                                    <div class="list-group list-group-flush">
+                                        {% for purchase in recent_purchases %}
+                                        <div class="list-group-item px-0 border-0 py-2">
+                                            <div class="row align-items-center">
+                                                <div class="col-sm-4">
+                                                    <small class="text-muted">{{ purchase.shop }}</small>
+                                                </div>
+                                                <div class="col-sm-4 text-center">
+                                                    <small class="text-muted">{{ purchase.date.split(' ')[0] }}</small>
+                                                </div>
+                                                <div class="col-sm-2 text-center">
+                                                    <span class="badge bg-primary">{{ purchase.items|length }} items</span>
+                                                </div>
+                                                <div class="col-sm-2 text-end">
+                                                    <strong>₹{{ purchase.total_amount|round(2) }}</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No recent purchases</p>
+                                        <small class="text-muted">Your purchase history will appear here</small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <!-- Order Summary -->
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-receipt me-2"></i>Order Summary
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Selected Items -->
+                                    <div class="mb-3" id="selectedItemsList">
+                                        <small class="text-muted">No items selected</small>
+                                    </div>
+                                    
+                                    <hr>
+                                    
+                                    <!-- Summary Details -->
+                                    <div class="mb-2">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Subtotal:</span>
+                                            <span id="subtotal">₹0.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Tax (0%):</span>
+                                            <span>₹0.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Discount:</span>
+                                            <span class="text-success">₹0.00</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <hr>
+                                    
+                                    <!-- Total -->
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <span class="h6 mb-0">Total Amount:</span>
+                                        <span class="h5 mb-0 fw-bold text-primary" id="totalAmount">₹0.00</span>
+                                    </div>
+                                    
+                                    <!-- Quota After Purchase -->
+                                    <div class="alert alert-warning mb-3">
+                                        <h6 class="alert-heading">
+                                            <i class="fas fa-calculator me-2"></i>After Purchase
+                                        </h6>
+                                        <div class="row small">
+                                            <div class="col-6">
+                                                <span>Remaining Quota:</span>
+                                            </div>
+                                            <div class="col-6 text-end">
+                                                <span id="remainingQuota">₹{{ quota_balance }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Submit Button -->
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-success btn-lg" id="submitBtn" disabled>
+                                            <i class="fas fa-credit-card me-2"></i>
+                                            Complete Purchase
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Terms -->
+                                    <div class="form-check mt-3">
+                                        <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                                        <label class="form-check-label small" for="termsCheck">
+                                            I agree to the terms and conditions. I understand that this purchase will deduct from my monthly quota.
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let subtotal = 0;
+    let selectedItems = [];
+    const quotaBalance = { quota_balance };
+    
+    // Shop card selection
+    document.querySelectorAll('.shop-card').forEach(card => {
+        card.addEventListener('click', function() {
+            document.querySelectorAll('.shop-card').forEach(c => {
+                c.classList.remove('border-primary', 'bg-primary', 'bg-opacity-10');
+            });
+            this.classList.add('border-primary', 'bg-primary', 'bg-opacity-10');
+            document.getElementById('shopSelect').value = this.dataset.shopId;
+            document.getElementById('shopSelect').classList.add('is-valid');
+        });
+    });
+    
+    // Payment option selection
+    document.querySelectorAll('.payment-option').forEach(option => {
+        option.addEventListener('click', function() {
+            document.querySelectorAll('.payment-option').forEach(o => {
+                o.classList.remove('border-primary', 'bg-primary', 'bg-opacity-10');
+            });
+            this.classList.add('border-primary', 'bg-primary', 'bg-opacity-10');
+            document.getElementById('paymentMethod').value = this.dataset.method;
+            document.getElementById('paymentMethod').classList.add('is-valid');
+        });
+    });
+    
+    // Quantity controls
+    document.querySelectorAll('.increment-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            const input = document.getElementById(`quantity_${itemId}`);
+            const maxQuota = parseFloat(input.dataset.maxQuota);
+            const stock = parseFloat(input.dataset.stock);
+            const maxAllowed = Math.min(maxQuota, stock);
+            let currentVal = parseFloat(input.value) || 0;
+            
+            if (currentVal < maxAllowed) {
+                const step = parseFloat(input.step) || 0.5;
+                input.value = Math.min(currentVal + step, maxAllowed).toFixed(1);
+                updateItemTotal(itemId);
+                updateSummary();
+            }
+        });
+    });
+    
+    document.querySelectorAll('.decrement-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            const input = document.getElementById(`quantity_${itemId}`);
+            let currentVal = parseFloat(input.value) || 0;
+            
+            if (currentVal > 0) {
+                const step = parseFloat(input.step) || 0.5;
+                input.value = Math.max(currentVal - step, 0).toFixed(1);
+                updateItemTotal(itemId);
+                updateSummary();
+            }
+        });
+    });
+    
+    // Direct input handling
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('input', function() {
+            let value = parseFloat(this.value) || 0;
+            const maxQuota = parseFloat(this.dataset.maxQuota);
+            const stock = parseFloat(this.dataset.stock);
+            const maxAllowed = Math.min(maxQuota, stock);
+            
+            // Limit to quota/stock and ensure non-negative
+            value = Math.max(0, Math.min(value, maxAllowed));
+            this.value = value.toFixed(1);
+            
+            const itemId = this.id.split('_')[1];
+            updateItemTotal(itemId);
+            updateSummary();
+        });
+    });
+    
+    // Quick select buttons
+    document.querySelectorAll('[data-quantity]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const quantity = parseFloat(this.dataset.quantity);
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                const maxQuota = parseFloat(input.dataset.maxQuota);
+                const stock = parseFloat(input.dataset.stock);
+                const maxAllowed = Math.min(maxQuota, stock);
+                const currentVal = parseFloat(input.value) || 0;
+                
+                if (currentVal === 0 && quantity <= maxAllowed) {
+                    input.value = quantity.toFixed(1);
+                    const itemId = input.id.split('_')[1];
+                    updateItemTotal(itemId);
+                }
+            });
+            updateSummary();
+        });
+    });
+    
+    // Half quota button
+    document.getElementById('selectAllHalf').addEventListener('click', function() {
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            const maxQuota = parseFloat(input.dataset.maxQuota);
+            const stock = parseFloat(input.dataset.stock);
+            const maxAllowed = Math.min(maxQuota, stock);
+            const halfQuota = maxAllowed / 2;
+            
+            if (halfQuota > 0) {
+                input.value = Math.min(halfQuota, maxAllowed).toFixed(1);
+                const itemId = input.id.split('_')[1];
+                updateItemTotal(itemId);
+            }
+        });
+        updateSummary();
+    });
+    
+    // Full quota button
+    document.getElementById('selectAllFull').addEventListener('click', function() {
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            const maxQuota = parseFloat(input.dataset.maxQuota);
+            const stock = parseFloat(input.dataset.stock);
+            const maxAllowed = Math.min(maxQuota, stock);
+            
+            if (maxAllowed > 0) {
+                input.value = maxAllowed.toFixed(1);
+                const itemId = input.id.split('_')[1];
+                updateItemTotal(itemId);
+            }
+        });
+        updateSummary();
+    });
+    
+    // Reset all quantities
+    document.getElementById('resetQuantities').addEventListener('click', function() {
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.value = '0';
+            const itemId = input.id.split('_')[1];
+            updateItemTotal(itemId);
+        });
+        updateSummary();
+    });
+    
+    // Update individual item total
+    function updateItemTotal(itemId) {
+        const input = document.getElementById(`quantity_${itemId}`);
+        const totalEl = document.getElementById(`total_${itemId}`);
+        const price = parseFloat(input.dataset.price);
+        const quantity = parseFloat(input.value) || 0;
+        const total = (price * quantity).toFixed(2);
+        
+        totalEl.textContent = `₹${total}`;
+        
+        // Update selected items array
+        const itemName = input.dataset.itemName;
+        const unit = input.dataset.unit;
+        const index = selectedItems.findIndex(item => item.id === itemId);
+        
+        if (quantity > 0) {
+            if (index === -1) {
+                selectedItems.push({
+                    id: itemId,
+                    name: itemName,
+                    quantity: quantity,
+                    unit: unit,
+                    price: price,
+                    total: parseFloat(total)
+                });
+            } else {
+                selectedItems[index].quantity = quantity;
+                selectedItems[index].total = parseFloat(total);
+            }
+        } else {
+            if (index > -1) {
+                selectedItems.splice(index, 1);
+            }
+        }
+        
+        return parseFloat(total);
+    }
+    
+    // Update order summary
+    function updateSummary() {
+        subtotal = 0;
+        
+        // Calculate subtotal from all items
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            const itemId = input.id.split('_')[1];
+            const itemTotal = updateItemTotal(itemId);
+            subtotal += itemTotal;
+        });
+        
+        // Update display
+        document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+        document.getElementById('totalAmount').textContent = `₹${subtotal.toFixed(2)}`;
+        
+        // Update remaining quota
+        const remainingQuota = quotaBalance - subtotal;
+        document.getElementById('remainingQuota').textContent = `₹${remainingQuota.toFixed(2)}`;
+        
+        // Update selected items list
+        const selectedItemsList = document.getElementById('selectedItemsList');
+        if (selectedItems.length > 0) {
+            let html = '';
+            selectedItems.forEach(item => {
+                html += `
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <small>${item.name} (${item.quantity} ${item.unit})</small>
+                    <small>₹${item.total.toFixed(2)}</small>
+                </div>
+                `;
+            });
+            selectedItemsList.innerHTML = html;
+        } else {
+            selectedItemsList.innerHTML = '<small class="text-muted">No items selected</small>';
+        }
+        
+        // Enable/disable submit button
+        const submitBtn = document.getElementById('submitBtn');
+        const termsCheck = document.getElementById('termsCheck');
+        const shopSelect = document.getElementById('shopSelect');
+        const paymentMethod = document.getElementById('paymentMethod');
+        
+        const isValid = selectedItems.length > 0 && 
+                       subtotal > 0 && 
+                       shopSelect.value && 
+                       paymentMethod.value && 
+                       termsCheck.checked &&
+                       remainingQuota >= 0;
+        
+        submitBtn.disabled = !isValid;
+        submitBtn.innerHTML = isValid ? 
+            '<i class="fas fa-credit-card me-2"></i>Complete Purchase' :
+            '<i class="fas fa-shopping-cart me-2"></i>Select Items to Purchase';
+    }
+    
+    // Terms checkbox handler
+    document.getElementById('termsCheck').addEventListener('change', updateSummary);
+    
+    // Shop and payment change handlers
+    document.getElementById('shopSelect').addEventListener('change', function() {
+        this.classList.add('is-valid');
+        updateSummary();
+    });
+    
+    document.getElementById('paymentMethod').addEventListener('change', function() {
+        this.classList.add('is-valid');
+        updateSummary();
+    });
+    
+    // Form submission validation
+    document.getElementById('purchaseForm').addEventListener('submit', function(e) {
+        if (selectedItems.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one item to purchase.');
+            return;
+        }
+        
+        if (subtotal <= 0) {
+            e.preventDefault();
+            alert('Please enter valid quantities for selected items.');
+            return;
+        }
+        
+        const shopSelect = document.getElementById('shopSelect');
+        const paymentMethod = document.getElementById('paymentMethod');
+        
+        if (!shopSelect.value) {
+            e.preventDefault();
+            alert('Please select a ration shop.');
+            shopSelect.focus();
+            return;
+        }
+        
+        if (!paymentMethod.value) {
+            e.preventDefault();
+            alert('Please select a payment method.');
+            paymentMethod.focus();
+            return;
+        }
+        
+        // Check remaining quota
+        const remainingQuota = quotaBalance - subtotal;
+        if (remainingQuota < 0) {
+            e.preventDefault();
+            alert('Insufficient quota balance. Please adjust your quantities.');
+            return;
+        }
+        
+        // Show loading state
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+        submitBtn.disabled = true;
+        
+        // Form is valid, allow submission
+    });
+    
+    // Initialize summary
+    updateSummary();
+});
+</script>
+
+
+{% endblock %}
